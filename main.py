@@ -1,4 +1,4 @@
-from utils import read_video, save_video
+from utils import Utils
 from trackers import Tracker
 import cv2
 import numpy as np
@@ -11,7 +11,7 @@ from speed_and_distance_estimator import SpeedAndDistance_Estimator
 
 def main():
     # Read Video
-    video_frames = read_video('input_videos/trimmed_live.mp4')
+    video_frames = Utils.read_video('input_videos/Goal1_fixed.mp4')
 
     # Initialize Tracker
     tracker = Tracker('models/best.pt')
@@ -81,7 +81,7 @@ def main():
     speed_and_distance_estimator.draw_speed_and_distance(output_video_frames,tracks)
 
     # Save video
-    save_video(output_video_frames, 'output_videos/trimmed_live.mp4')
+    Utils.save_video(output_video_frames, 'output_videos/goal_fixed1.mp4')
 
 if __name__ == '__main__':
     main()
