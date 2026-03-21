@@ -65,7 +65,7 @@ class CameraMovementEstimator():
                 distance = Utils.measure_distance(new_features_point,old_features_point)
                 if distance>max_distance:
                     max_distance = distance
-                    camera_movement_x,camera_movement_y = measure_xy_distance(old_features_point, new_features_point ) 
+                    camera_movement_x,camera_movement_y = Utils.measure_xy_distance(old_features_point, new_features_point ) 
             
             if max_distance > self.minimum_distance:
                 camera_movement[frame_num] = [camera_movement_x,camera_movement_y]

@@ -6,19 +6,24 @@ sys.path.append('../')
 
 class Utils:
 
+
     def read_video(video_path):
-        video = cv2.VideoCapture(video_path)
-        
+        cap = cv2.VideoCapture(video_path)
         frames = []
 
+        if not cap.isOpened():
+            print(f"Could not open video: {video_path}")
+            return frames
+
         while True:
-            ret, frame = video.read()
+            ret, frame = cap.read()
             if not ret:
                 break
             frames.append(frame)
 
-        video.release()
+        cap.release()
         return frames
+
     
     def save_video(frames, output_path, fps=25):
         height, width, _ = frames[0].shape
@@ -65,3 +70,28 @@ class Utils:
         dy = y2 - y1
 
         return dx, dy
+
+    def draw_rectangle(frame, bbox, color=(0, 255, 0), label=None):
+        x, y, w, h = map(int, bbox)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
+
+        if label:
+            cv2.putText(
+                frame,
+                label,
+                (x, max(20, y - 10)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                color,
+                2
+            )
+
+
+    def xyxy_to_xywh(bbox):
+        x1, y1, x2, y2 = bbox
+        return int(x1), int(y1), int(x2 - x1), int(y2 - y1)
+
+
+    def get_box_center_xyxy(bbox):
+        x1, y1, x2, y2 = bbox
+        return int((x1 + x2) / 2), int((y1 + y2) / 2)

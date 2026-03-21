@@ -103,6 +103,96 @@ class Tracker:
 
         return tracks
     
+    def get_object_track_debug(self, frames, output_dir,read_from_stub=False, stub_path=None):
+
+        if read_from_stub and stub_path is not None and os.path.exists(stub_path):
+            with open(stub_path,'rb') as f:
+                tracks = pickle.load(f)
+            return tracks
+
+        detections = self.detect_frames(frames)
+
+        tracks={
+            "players":[],
+            "ball":[]
+        }
+        for frame_num, detection in enumerate(detections):
+            cls_names = detection.names
+            cls_names_inv = {v:k for k,v in cls_names.items()}
+
+            # Covert to supervision Detection format
+            detection_supervision = sv.Detections.from_ultralytics(detection)
+
+            # Convert GoalKeeper to player object
+            for object_ind , class_id in enumerate(detection_supervision.class_id):
+                if cls_names[class_id] == "goalkeeper":
+                    detection_supervision.class_id[object_ind] = cls_names_inv["player"]
+
+            # Track Objects
+            detection_with_tracks = self.tracker.update_with_detections(detection_supervision)
+
+            tracks["players"].append({})
+            tracks["ball"].append({})
+
+            for frame_detection in detection_with_tracks:
+                bbox = frame_detection[0].tolist()
+                cls_id = frame_detection[3]
+                track_id = frame_detection[4]
+
+                if cls_id == cls_names_inv['person']:
+                    tracks["players"][frame_num][track_id] = {"bbox":bbox}
+                
+            
+            for frame_detection in detection_supervision:
+                # get frame index
+                frame_idx = frame_num
+                bbox = frame_detection[0].tolist()
+                cls_id = frame_detection[3]
+
+                if cls_id == cls_names_inv['sports ball']:
+                    tracks["ball"][frame_num][1] = {"bbox":bbox}
+                
+                if frame_idx < len(frames):
+                    results = self.model(frames[frame_idx], conf=0.10, verbose=False)
+                    annotated = results[0].plot()
+                    out_path = f"{output_dir}/frame_{frame_idx}_detected.jpg"
+                    cv2.imwrite(out_path, annotated)
+                    print(f"Saved {out_path}")
+
+                # print classes found
+                if results[0].boxes is not None:
+                    cls_ids = results[0].boxes.cls.cpu().numpy()
+                    names = [self.model.names[int(c)] for c in cls_ids]
+                    print(f"Frame {frame_idx}: {names}")
+
+
+        if stub_path is not None:
+            with open(stub_path,'wb') as f:
+                pickle.dump(tracks,f)
+
+        return tracks
+        
+        for frame_detection in detection_with_tracks:
+            bbox = frame_detection[0].tolist()
+            cls_id = frame_detection[3]
+            track_id = frame_detection[4]
+
+        model = YOLO("yolov8n.pt")
+
+        cap = cv2.VideoCapture('input_videos/Goal1.mp4')
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        frame_idx = 0
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+
+            frame_idx += 1
+
+        cap.release()
+
     def draw_ellipse(self,frame,bbox,color,track_id=None):
         y2 = int(bbox[3])
         x_center, _ = Utils.get_center_of_bbox(bbox)

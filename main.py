@@ -1,24 +1,91 @@
 from utils import Utils
 from trackers import Tracker
+from trackers import BallTracker
 import cv2
 import numpy as np
+import os, sys
 from team_assigner import TeamAssigner
 from player_ball_assigner import PlayerBallAssigner
 from camera_movement_estimator import CameraMovementEstimator
 from view_transformer import ViewTransformer
 from speed_and_distance_estimator import SpeedAndDistance_Estimator
 
+from ultralytics import YOLO
+
+import logging
+logging.basicConfig(level=logging.INFO)
+
 
 def main():
     # Read Video
-    video_frames = Utils.read_video('input_videos/Goal1_fixed.mp4')
+    
+    video_frames = Utils.read_video('input_videos/Goal2.mp4')
+    # reduce to the first 60 frames for debug
+    video_frames = video_frames[:60]
+    logging.info(f"Total frames read: {len(video_frames)}")
+    output_dir = "debug_frames"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # define goals
+    LEFT_GOAL = {
+        "x1": 0,
+        "y1": 200,
+        "x2": 200,
+        "y2": 500
+    }
+
+    RIGHT_GOAL = {
+        "x1": 1000,
+        "y1": 200,
+        "x2": 1280,
+        "y2": 500
+    }
+    logging.info(f"Video resolution: {video_frames[0].shape[1]}x{video_frames[0].shape[0]}")
+    logging.info(f"Left Goal: {LEFT_GOAL}")
+    logging.info(f"Right Goal: {RIGHT_GOAL}")
 
     # Initialize Tracker
-    tracker = Tracker('models/best.pt')
+    tracker = Tracker('yolov8n.pt')
+    logging.info("Initialized YOLOv8n tracker")
+
+    # YOLO Model for Players
+    player_tracks = tracker.get_object_track_debug(
+        video_frames,
+        output_dir=output_dir,
+        read_from_stub=False,
+        stub_path="stubs/track_stub_debug.pkl"
+    )
+    print(type(player_tracks))
+    print(player_tracks.keys())
+
+    print(type(player_tracks["players"]))
+    print(type(player_tracks["players"][0]))
+    print("frame 0 players:", player_tracks["players"][0])
+
+    # CV2/CSRT Tracker for Ball
+    ball_tracks = BallTracker('yolov8n.pt').track_ball_with_csrt(
+        video_frames, 
+        init_frame_idx=0,
+        init_bbox=(2210, 1343, 60, 60))
+    
+    print(type(ball_tracks))         # dict  
+
+    print(type(ball_tracks["ball"])) # list
+
+    # Write debug video with tracks
+    BallTracker('yolov8n.pt').draw_tracks_on_video(
+        video_frames,
+        player_tracks,
+        ball_tracks,
+        output_path="output_videos/output_players_ball.mp4"
+    )
+    sys.exit(1)
 
     tracks = tracker.get_object_tracks(video_frames,
                                        read_from_stub=True,
                                        stub_path='stubs/track_stubs.pkl')
+    
+
     # Get object positions 
     tracker.add_position_to_tracks(tracks)
 
@@ -84,4 +151,9 @@ def main():
     Utils.save_video(output_video_frames, 'output_videos/goal_fixed1.mp4')
 
 if __name__ == '__main__':
+    # log time taken for each step
+    import time
+    start_time = time.time()
     main()
+    end_time = time.time()
+    print(f"Total time taken: {end_time - start_time} seconds")
