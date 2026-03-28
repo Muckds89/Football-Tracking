@@ -95,3 +95,36 @@ class Utils:
     def get_box_center_xyxy(bbox):
         x1, y1, x2, y2 = bbox
         return int((x1 + x2) / 2), int((y1 + y2) / 2)
+
+    def _center_of_xyxy(bbox):
+        x1, y1, x2, y2 = bbox
+        return int((x1 + x2) / 2), int((y1 + y2) / 2)
+
+    @staticmethod
+    def _iou_xywh_vs_xyxy(ball_bbox_xywh, obj_bbox_xyxy):
+        bx, by, bw, bh = ball_bbox_xywh
+        bx2 = bx + bw
+        by2 = by + bh
+
+        ox1, oy1, ox2, oy2 = obj_bbox_xyxy
+
+        ix1 = max(bx, ox1)
+        iy1 = max(by, oy1)
+        ix2 = min(bx2, ox2)
+        iy2 = min(by2, oy2)
+
+        iw = max(0, ix2 - ix1)
+        ih = max(0, iy2 - iy1)
+        inter = iw * ih
+
+        ball_area = max(1, bw * bh)
+        obj_area = max(1, (ox2 - ox1) * (oy2 - oy1))
+        union = ball_area + obj_area - inter
+
+        return inter / union if union > 0 else 0.0
+
+    @staticmethod
+    def _point_inside_xyxy(point, bbox_xyxy, margin=0):
+        x, y = point
+        x1, y1, x2, y2 = bbox_xyxy
+        return (x1 - margin) <= x <= (x2 + margin) and (y1 - margin) <= y <= (y2 + margin)

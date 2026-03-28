@@ -16,15 +16,15 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
-def main():
-    # Read Video
-    
-    video_frames = Utils.read_video('input_videos/Goal2.mp4')
-    # reduce to the first 60 frames for debug
-    video_frames = video_frames[:60]
-    logging.info(f"Total frames read: {len(video_frames)}")
-    output_dir = "debug_frames"
-    os.makedirs(output_dir, exist_ok=True)
+def select_ball_bbox(frame, display_width=1280, display_height=720):
+    display = cv2.resize(frame, (display_width, display_height))
+
+    cv2.namedWindow("Select Ball", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Select Ball", display_width, display_height)
+    cv2.moveWindow("Select Ball", 100, 100)
+
+    bbox = cv2.selectROI(nox(frame)
+    logging.info(f"Selected ball bounding box: {bbox}")
 
     # define goals
     LEFT_GOAL = {
@@ -63,10 +63,15 @@ def main():
     print("frame 0 players:", player_tracks["players"][0])
 
     # CV2/CSRT Tracker for Ball
-    ball_tracks = BallTracker('yolov8n.pt').track_ball_with_csrt(
-        video_frames, 
+    ball_tracker = BallTracker("yolov8n.pt", yolo_conf=0.15)
+
+    ball_tracks = ball_tracker.track_ball_hybrid(
+        video_frames,
+        player_tracks=player_tracks,
         init_frame_idx=0,
-        init_bbox=(2210, 1343, 60, 60))
+        init_bbox=bbox,
+        max_frames=max_frames
+    )
     
     print(type(ball_tracks))         # dict  
 
