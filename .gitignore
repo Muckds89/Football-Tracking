@@ -1,1 +1,22 @@
 input_videos/*.mp4
+input_videos/*.jpg
+output_videos/*.mp4
+output_videos/*.jpg
+datasets/images
+datasets/labels
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.pyc
+*.LRF
+
+
+# Labels
+*.txt
+
+# Training outputs
+runs/
+weights/
+*.pt

@@ -9,81 +9,140 @@ from player_ball_assigner import PlayerBallAssigner
 from camera_movement_estimator import CameraMovementEstimator
 from view_transformer import ViewTransformer
 from speed_and_distance_estimator import SpeedAndDistance_Estimator
-
 from ultralytics import YOLO
 
 import logging
 logging.basicConfig(level=logging.INFO)
 
+from roi_utils import save_rois
 
-def select_ball_bbox(frame, display_width=1280, display_height=720):
-    display = cv2.resize(frame, (display_width, display_height))
 
-    cv2.namedWindow("Select Ball", cv2.WINDOW_NORMAL)
-    cv2.resizeWindow("Select Ball", display_width, display_height)
-    cv2.moveWindow("Select Ball", 100, 100)
+video_path = "input_videos/Goal1.mp4"
+output_dir = "output_videos"
+# trim video to first 300 frames for testing
+frames_ = Utils.read_video(video_path)
+max_frames = len(list(frames_))
+logging.info(f"Total frames in video: {max_frames}")
 
-    bbox = cv2.selectROI(nox(frame)
-    logging.info(f"Selected ball bounding box: {bbox}")
 
-    # define goals
-    LEFT_GOAL = {
-        "x1": 0,
-        "y1": 200,
-        "x2": 200,
-        "y2": 500
-    }
+def main(frames, display_width=1280, display_height=720):
 
-    RIGHT_GOAL = {
-        "x1": 1000,
-        "y1": 200,
-        "x2": 1280,
-        "y2": 500
-    }
-    logging.info(f"Video resolution: {video_frames[0].shape[1]}x{video_frames[0].shape[0]}")
-    logging.info(f"Left Goal: {LEFT_GOAL}")
-    logging.info(f"Right Goal: {RIGHT_GOAL}")
+    ROI_NAMES = [
+        "midfield_spot",
+        "left_penalty_box",
+        "right_penalty_box",
+        "left_goal",
+        "right_goal",
+    ]
 
-    # Initialize Tracker
-    tracker = Tracker('yolov8n.pt')
-    logging.info("Initialized YOLOv8n tracker")
+    current_points = []
+    rois = {}
+    current_roi_index = 0
+
+
+    def mouse_callback(event, x, y, flags, param):
+        global current_points
+        if event == cv2.EVENT_LBUTTONDOWN:
+            current_points.append((x, y))
+
+    frame = frames[-1]  # Take the last frame for ROI drawing
+    # if frm is None:
+    #     logging.error("Can't read the last frame of the video.")
+    #     return
+
+    # Ora puoi usare 'frm' per le ROI
+    cv2.namedWindow("Draw ROIs", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("Draw ROIs", display_width, display_height)
+    cv2.setMouseCallback("Draw ROIs", mouse_callback)    
+
+    while True:
+        display = frame.copy()
+
+        for roi_name, polygon in rois.items():
+            pts = polygon[:]
+            if len(pts) >= 2:
+                cv2.polylines(display, [cv2.UMat(cv2.convexHull(cv2.UMat(np.array(pts, dtype='int32')))).get()], True, (0, 255, 0), 2)
+
+        for i, pt in enumerate(current_points):
+            cv2.circle(display, pt, 4, (0, 0, 255), -1)
+            if i > 0:
+                cv2.line(display, current_points[i - 1], pt, (255, 0, 0), 2)
+
+        if current_roi_index < len(ROI_NAMES):
+            text = f"Draw ROI: {ROI_NAMES[current_roi_index]} | ENTER=save ROI | U=undo point | Q=quit"
+        else:
+            text = "All ROIs completed. Press S to save, Q to quit."
+
+        cv2.putText(display, text, (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+
+        cv2.imshow("Draw ROIs", display)
+        key = cv2.waitKey(20) & 0xFF
+
+        if key == ord("u") and current_points:
+            current_points.pop()
+
+        elif key == 13:  # Enter
+            if current_roi_index < len(ROI_NAMES) and len(current_points) >= 3:
+                rois[ROI_NAMES[current_roi_index]] = current_points[:]
+                current_points = []
+                current_roi_index += 1
+
+        elif key == ord("s"):
+            save_rois(rois, "rois.json")
+            print("Saved rois.json")
+            break
+
+        elif key == ord("q"):
+            break
+
+    cv2.destroyAllWindows()
+
+
+    # logging.info(f"Video resolution: {video_frames[0].shape[1]}x{video_frames[0].shape[0]}")
+    # logging.info(f"Left Goal: {LEFT_GOAL}")
+    # logging.info(f"Right Goal: {RIGHT_GOAL}")
+
+    # # Initialize Tracker
+    # tracker = Tracker('yolov8n.pt')
+    # take the last fraim from frame generator
+    #     # logging.info("Initialized YOLOv8n tracker")
 
     # YOLO Model for Players
-    player_tracks = tracker.get_object_track_debug(
-        video_frames,
-        output_dir=output_dir,
-        read_from_stub=False,
-        stub_path="stubs/track_stub_debug.pkl"
-    )
-    print(type(player_tracks))
-    print(player_tracks.keys())
+    # player_tracks = tracker.get_object_track_debug(
+    #     video_frames,
+    #     output_dir=output_dir,
+    #     read_from_stub=False,
+    #     stub_path="stubs/track_stub_debug.pkl"
+    # )
+    # print(type(player_tracks))
+    # print(player_tracks.keys())
 
-    print(type(player_tracks["players"]))
-    print(type(player_tracks["players"][0]))
-    print("frame 0 players:", player_tracks["players"][0])
+    # print(type(player_tracks["players"]))
+    # print(type(player_tracks["players"][0]))
+    # print("frame 0 players:", player_tracks["players"][0])
 
     # CV2/CSRT Tracker for Ball
-    ball_tracker = BallTracker("yolov8n.pt", yolo_conf=0.15)
+    # ball_tracker = BallTracker("yolov8n.pt", yolo_conf=0.15)
 
-    ball_tracks = ball_tracker.track_ball_hybrid(
-        video_frames,
-        player_tracks=player_tracks,
-        init_frame_idx=0,
-        init_bbox=bbox,
-        max_frames=max_frames
-    )
+    # ball_tracks = ball_tracker.track_ball_hybrid(
+    #     video_frames,
+    #     player_tracks=player_tracks,
+    #     init_frame_idx=0,
+    #     init_bbox=bbox,
+    #     max_frames=max_frames
+    # )
     
-    print(type(ball_tracks))         # dict  
+    # print(type(ball_tracks))         # dict  
 
-    print(type(ball_tracks["ball"])) # list
+    # print(type(ball_tracks["ball"])) # list
 
     # Write debug video with tracks
-    BallTracker('yolov8n.pt').draw_tracks_on_video(
-        video_frames,
-        player_tracks,
-        ball_tracks,
-        output_path="output_videos/output_players_ball.mp4"
-    )
+    # BallTracker('yolov8n.pt').draw_tracks_on_video(
+    #     video_frames,
+    #     player_tracks,
+    #     ball_tracks,
+    #     output_path="output_videos/output_players_ball.mp4"
+    # )
     sys.exit(1)
 
     tracks = tracker.get_object_tracks(video_frames,
@@ -159,6 +218,6 @@ if __name__ == '__main__':
     # log time taken for each step
     import time
     start_time = time.time()
-    main()
+    main(frames_, display_width=1280, display_height=720)
     end_time = time.time()
     print(f"Total time taken: {end_time - start_time} seconds")
