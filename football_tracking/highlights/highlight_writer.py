@@ -1,6 +1,7 @@
 import os
 import cv2
 import logging
+from football_tracking.io_utils import IOUtils
     
 class VideoUtils:
     def build_highlight_windows(events, total_frames, fps, seconds_before=10, seconds_after=10):
@@ -78,6 +79,8 @@ class VideoUtils:
         height, width = frames[0].shape[:2]
         temp_new_clips = output_path.replace(".mp4", "_newclips.mp4")
         temp_combined = output_path.replace(".mp4", "_combined.mp4")
+
+        IOUtils.ensure_dir(os.path.dirname(output_path))
 
         # write the newly selected clips first
         writer = cv2.VideoWriter(
