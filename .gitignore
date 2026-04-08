@@ -11,6 +11,11 @@ datasets/labels
 *.png
 *.pyc
 *.LRF
+*.LRF
+*.zip
+*.tar.gz
+*.tar
+*.mp4
 
 
 # Labels

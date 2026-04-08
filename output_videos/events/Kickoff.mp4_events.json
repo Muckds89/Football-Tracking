@@ -1,0 +1,35 @@
+[
+  {
+    "event": "right_penalty_pressure",
+    "start_frame": 1114,
+    "end_frame": 1123,
+    "start_time_sec": 37.13333333333333,
+    "end_time_sec": 37.43333333333333,
+    "duration_sec": 0.4,
+    "max_hits_in_window": 5,
+    "goal_touched": false,
+    "side": "right"
+  },
+  {
+    "event": "right_penalty_pressure",
+    "start_frame": 1206,
+    "end_frame": 1286,
+    "start_time_sec": 40.2,
+    "end_time_sec": 42.86666666666667,
+    "duration_sec": 3.24,
+    "max_hits_in_window": 8,
+    "goal_touched": false,
+    "side": "right"
+  },
+  {
+    "event": "right_penalty_pressure",
+    "start_frame": 2059,
+    "end_frame": 2067,
+    "start_time_sec": 68.63333333333334,
+    "end_time_sec": 68.9,
+    "duration_sec": 0.36,
+    "max_hits_in_window": 4,
+    "goal_touched": false,
+    "side": "right"
+  }
+]
