@@ -1,0 +1,11 @@
+2026-04-08 21:50:10,263 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\manifests\processed_videos.json
+2026-04-08 21:50:10,290 [INFO] Found 0 new videos
+2026-04-08 21:53:07,088 [INFO] Found 1 new videos
+2026-04-08 21:53:07,089 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-08 21:53:07,543 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-08 21:53:07,740 [INFO] Step 1 Load Frames done in 0.7s
+2026-04-08 21:53:07,761 [INFO] Saved frame to C:\Users\marco\Projects\Football-Tracking\output_videos\reference_frames\Kickoff_2_last_frame.jpg
+2026-04-08 21:53:51,355 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\rois\Kickoff_2_rois.json
+2026-04-08 21:53:51,356 [INFO] Created ROIs for Kickoff_2.mp4
+2026-04-08 21:53:51,356 [INFO] Step 2 ROI handling done in 43.6s
+2026-04-08 21:53:52,647 [INFO] Tracking progress: 0/2322 frames (0.0%)
