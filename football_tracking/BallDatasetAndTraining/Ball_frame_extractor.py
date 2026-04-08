@@ -1,7 +1,7 @@
 import cv2
 import os
 
-def extract_frames(video_path, output_dir, every_n=2, max_frames=None, prefix=None):
+def extract_frames(video_path, output_dir, every_n=2, max_frames=None, prefix="March29_3_"):
     os.makedirs(output_dir, exist_ok=True)
 
     cap = cv2.VideoCapture(video_path)
@@ -30,7 +30,7 @@ def extract_frames(video_path, output_dir, every_n=2, max_frames=None, prefix=No
     print(f"Saved {saved_idx} frames to {output_dir}")
 
 if __name__ == "__main__":
-    video_path = "input_videos/BallMastry2.MP4"
-    output_dir = "new_video_frames/BM/Images"
-    extract_frames(video_path, output_dir, every_n=5, max_frames=3000)
+    video_path = "../../input_videos/Video Project 15.mp4"
+    output_dir = "../../new_video_frames/March29_3/Images"
+    extract_frames(video_path, output_dir, every_n=5, max_frames=4000)
 

@@ -28,8 +28,8 @@ def merge_data(src_img, src_lbl, dst_img_train, dst_lbl_train):
         # )
 
 merge_data(
-    "new_video_frames/BM/Images",
-    "new_video_frames/BM/labels",
-    "dataset/images/",
-    "dataset/labels/"
+    "../../new_video_frames/March29_3/Images",
+    "../../new_video_frames/March29_3/labels",
+    "../../dataset/images/",
+    "../../dataset/labels/"
 )

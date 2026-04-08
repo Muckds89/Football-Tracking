@@ -3,7 +3,7 @@ import random
 import shutil
 from pathlib import Path
 
-def split_dataset(base_dir="dataset", val_ratio=0.2):
+def split_dataset(base_dir="../../dataset", val_ratio=0.2):
     images_dir = os.path.join(base_dir, "images")
     labels_dir = os.path.join(base_dir, "labels")
 
