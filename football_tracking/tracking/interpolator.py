@@ -1,7 +1,7 @@
 class Interpolator:
     def __init__(self):
         pass
-    def interpolate_ball_tracks(ball_tracks, max_gap=5):
+    def interpolate_ball_tracks(self,ball_tracks, max_gap=5):
         filled = ball_tracks[:]
         n = len(filled)
 

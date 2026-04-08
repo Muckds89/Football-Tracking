@@ -7,7 +7,7 @@ import pandas as pd
 import cv2
 import sys 
 sys.path.append('../')
-from utils import Utils
+from football_tracking.utils.video_utils import VideoUtils
 
 class Tracker:
     def __init__(self, model_path):
@@ -20,9 +20,9 @@ class Tracker:
                 for track_id, track_info in track.items():
                     bbox = track_info['bbox']
                     if object == 'ball':
-                        position= Utils.get_center_of_bbox(bbox)
+                        position= VideoUtils.get_center_of_bbox(bbox)
                     else:
-                        position = Utils.get_foot_position(bbox)
+                        position = VideoUtils.get_foot_position(bbox)
                     tracks[object][frame_num][track_id]['position'] = position
 
     def interpolate_ball_positions(self,ball_positions):
@@ -195,8 +195,8 @@ class Tracker:
 
     def draw_ellipse(self,frame,bbox,color,track_id=None):
         y2 = int(bbox[3])
-        x_center, _ = Utils.get_center_of_bbox(bbox)
-        width = Utils.get_bbox_width(bbox)
+        x_center, _ = VideoUtils.get_center_of_bbox(bbox)
+        width = VideoUtils.get_bbox_width(bbox)
 
         cv2.ellipse(
             frame,
@@ -242,7 +242,7 @@ class Tracker:
 
     def draw_traingle(self,frame,bbox,color):
         y= int(bbox[1])
-        x,_ = Utils.get_center_of_bbox(bbox)
+        x,_ = VideoUtils.get_center_of_bbox(bbox)
 
         triangle_points = np.array([
             [x,y],

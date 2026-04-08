@@ -32,7 +32,7 @@ class ROIUtils:
         with open(output_path, "w") as f:
             json.dump(serializable, f, indent=2)
 
-    def annotate_rois(
+    def annotate_rois_local(
         self,
         image_path: str,
         output_json: str = "rois.json",

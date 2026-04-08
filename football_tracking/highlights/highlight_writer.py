@@ -3,8 +3,10 @@ import cv2
 import logging
 from football_tracking.io_utils import IOUtils
     
-class VideoUtils:
-    def build_highlight_windows(events, total_frames, fps, seconds_before=10, seconds_after=10):
+class HIGHVideoUtils:
+    def __init__(self):
+        pass
+    def build_highlight_windows(self,events, total_frames, fps, seconds_before=10, seconds_after=10):
         """
         Convert event triggers into non-overlapping highlight windows.
         Each event is expected to have either:
@@ -64,25 +66,28 @@ class VideoUtils:
         return selected
     
 
-    def save_highlights_to_video(frames, highlight_windows, output_path, fps):
+    def save_highlights_to_video(self,video_path, highlight_windows, output_path, fps):
         """
-        Create a highlights video if it doesn't exist.
-        Append new clips if it already exists by rewriting a combined file safely.
+        Create a highlights video from a source video without loading all frames into RAM.
+        Append new clips if the output already exists by rewriting a combined file safely.
         """
-        if not frames:
-            raise ValueError("No frames provided.")
-
         if not highlight_windows:
             logging.info("No highlight windows to save.")
             return
 
-        height, width = frames[0].shape[:2]
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
+
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
         temp_new_clips = output_path.replace(".mp4", "_newclips.mp4")
         temp_combined = output_path.replace(".mp4", "_combined.mp4")
 
         IOUtils.ensure_dir(os.path.dirname(output_path))
 
-        # write the newly selected clips first
         writer = cv2.VideoWriter(
             temp_new_clips,
             cv2.VideoWriter_fourcc(*"mp4v"),
@@ -91,16 +96,26 @@ class VideoUtils:
         )
 
         for idx, win in enumerate(highlight_windows):
+            start_frame = max(0, win["start_frame"])
+            end_frame = min(total_frames - 1, win["end_frame"])
+
             logging.info(
                 f"Writing highlight {idx+1}: "
-                f"{win['event']} | frames {win['start_frame']} - {win['end_frame']}"
+                f"{win['event']} | frames {start_frame} - {end_frame}"
             )
 
-            for frame_idx in range(win["start_frame"], win["end_frame"] + 1):
-                frame = frames[frame_idx].copy()
+            cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+            current_frame = start_frame
+
+            while current_frame <= end_frame:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                frame_out = frame.copy()
 
                 cv2.putText(
-                    frame,
+                    frame_out,
                     f"{win['event']}",
                     (20, 40),
                     cv2.FONT_HERSHEY_SIMPLEX,
@@ -109,8 +124,8 @@ class VideoUtils:
                     2
                 )
                 cv2.putText(
-                    frame,
-                    f"frame {frame_idx}",
+                    frame_out,
+                    f"frame {current_frame}",
                     (20, 80),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.8,
@@ -118,18 +133,21 @@ class VideoUtils:
                     2
                 )
 
-                writer.write(frame)
+                writer.write(frame_out)
+                current_frame += 1
 
         writer.release()
+        cap.release()
 
-        # if final file does not exist, just move temp file into place
         if not os.path.exists(output_path):
             os.replace(temp_new_clips, output_path)
             logging.info(f"Created highlight video: {output_path}")
             return
 
-        # otherwise append: old video + new clips
         cap_old = cv2.VideoCapture(output_path)
+        if not cap_old.isOpened():
+            raise ValueError(f"Cannot open existing highlight video: {output_path}")
+
         writer_combined = cv2.VideoWriter(
             temp_combined,
             cv2.VideoWriter_fourcc(*"mp4v"),
@@ -137,23 +155,25 @@ class VideoUtils:
             (width, height)
         )
 
-        # copy old content
         while True:
             ret, frame = cap_old.read()
             if not ret:
                 break
             writer_combined.write(frame)
+
         cap_old.release()
 
-        # copy new clips content
         cap_new = cv2.VideoCapture(temp_new_clips)
+        if not cap_new.isOpened():
+            raise ValueError(f"Cannot open temp highlight video: {temp_new_clips}")
+
         while True:
             ret, frame = cap_new.read()
             if not ret:
                 break
             writer_combined.write(frame)
-        cap_new.release()
 
+        cap_new.release()
         writer_combined.release()
 
         os.remove(temp_new_clips)

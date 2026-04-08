@@ -2,8 +2,7 @@
 
 import os
 import json
-from football_tracking.utils.io_utils import IOUtils
-
+from football_tracking.io_utils import IOUtils
 
 
 

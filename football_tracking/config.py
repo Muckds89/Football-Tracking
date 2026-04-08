@@ -12,3 +12,4 @@ class PipelineConfig:
     seconds_before: int = 10
     seconds_after: int = 10
     conf_threshold: float = 0.25
+    environment: str = "local"   # "local" or "colab"

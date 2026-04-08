@@ -1,47 +1,77 @@
 import cv2
-import sys
-import numpy as np
-import logging
 import os
+import json
+import logging
+import numpy as np
 
-sys.path.append('../')
-
-class Utils:
 
 
-    def read_video(video_path):
+class VideoUtils:
+    @staticmethod
+    def read_video_stream(video_path):
         cap = cv2.VideoCapture(video_path)
-        frames = []
-
         if not cap.isOpened():
-            print(f"Could not open video: {video_path}")
-            return frames
+            raise ValueError(f"Cannot open video: {video_path}")
 
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
-
-            frames.append(frame)
+            yield frame
 
         cap.release()
-        return frames
 
-    
-    def save_video(frames, output_path, fps=25):
-        height, width, _ = frames[0].shape
+    @staticmethod
+    def get_video_metadata(video_path):
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
 
-        out = cv2.VideoWriter(
-            output_path,
-            cv2.VideoWriter_fourcc(*"mp4v"),
-            fps,
-            (width, height)
-        )
+        metadata = {
+            "fps": cap.get(cv2.CAP_PROP_FPS),
+            "frame_count": int(cap.get(cv2.CAP_PROP_FRAME_COUNT)),
+            "width": int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+            "height": int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+        }
+        cap.release()
+        return metadata
 
-        for frame in frames:
-            out.write(frame)
+    @staticmethod
+    def get_last_frame(video_path):
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
 
-        out.release()
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if frame_count <= 0:
+            cap.release()
+            raise ValueError(f"No frames in video: {video_path}")
+
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_count - 1)
+        ret, frame = cap.read()
+        cap.release()
+
+        if not ret:
+            raise ValueError(f"Could not read last frame from: {video_path}")
+
+        return frame
+
+    @staticmethod
+    def save_frame(frame, output_path):
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        cv2.imwrite(output_path, frame)
+        logging.info(f"Saved frame to {output_path}")
+
+
+    @staticmethod
+    def get_center_of_bbox(bbox):
+        x1, y1, x2, y2 = bbox
+        x_center = int((x1 + x2) / 2)
+        y_center = int((y1 + y2) / 2)
+        return x_center, y_center
+
+
+    @staticmethod
 
     def get_center_of_bbox(bbox):
         x1, y1, x2, y2 = bbox
@@ -49,22 +79,18 @@ class Utils:
         y_center = int((y1 + y2) / 2)
         return x_center, y_center
 
-    def get_center_of_bbox(bbox):
-        x1, y1, x2, y2 = bbox
-        x_center = int((x1 + x2) / 2)
-        y_center = int((y1 + y2) / 2)
-        return x_center, y_center
-    
+    @staticmethod
     def get_foot_position(bbox):
         x1, y1, x2, y2 = bbox
         x_center = int((x1 + x2) / 2)
         y_bottom = int(y2)
         return x_center, y_bottom
     
-
+    @staticmethod
     def measure_distance(p1, p2):
         return np.linalg.norm(np.array(p1) - np.array(p2))
     
+    @staticmethod
     def measure_xy_distance(p1, p2):
         x1, y1 = p1
         x2, y2 = p2
@@ -74,6 +100,7 @@ class Utils:
 
         return dx, dy
 
+    @staticmethod
     def draw_rectangle(frame, bbox, color=(0, 255, 0), label=None):
         x, y, w, h = map(int, bbox)
         cv2.rectangle(frame, (x, y), (x + w, y + h), color, 2)
@@ -90,15 +117,18 @@ class Utils:
             )
 
 
+    @staticmethod
     def xyxy_to_xywh(bbox):
         x1, y1, x2, y2 = bbox
         return int(x1), int(y1), int(x2 - x1), int(y2 - y1)
 
 
+    @staticmethod
     def get_box_center_xyxy(bbox):
         x1, y1, x2, y2 = bbox
         return int((x1 + x2) / 2), int((y1 + y2) / 2)
 
+    @staticmethod
     def _center_of_xyxy(bbox):
         x1, y1, x2, y2 = bbox
         return int((x1 + x2) / 2), int((y1 + y2) / 2)
@@ -134,11 +164,16 @@ class Utils:
 
 
 
+    @staticmethod
     def write_ball_debug_video(frames, ball_tracks, rois, output_path, fps=25):
-        if not frames:
+        frames_iter = iter(frames)
+
+        try:
+            first_frame = next(frames_iter)
+        except StopIteration:
             raise ValueError("No frames provided.")
 
-        h, w = frames[0].shape[:2]
+        h, w = first_frame.shape[:2]
 
         writer = cv2.VideoWriter(
             output_path,
@@ -152,9 +187,7 @@ class Utils:
             for name, points in rois.items()
         }
 
-        for i, frame in enumerate(frames):
-            out = frame.copy()
-
+        def draw_frame(out, i, track):
             # draw ROIs
             for roi_name, poly in roi_polys.items():
                 cv2.polylines(out, [poly], True, (0, 255, 0), 2)
@@ -168,8 +201,6 @@ class Utils:
                     (0, 255, 0),
                     2
                 )
-
-            track = ball_tracks[i] if i < len(ball_tracks) else None
 
             if track is None:
                 cv2.putText(
@@ -232,8 +263,20 @@ class Utils:
                 2
             )
 
+        try:
+            # write first frame
+            out = first_frame.copy()
+            first_track = ball_tracks[0] if len(ball_tracks) > 0 else None
+            draw_frame(out, 0, first_track)
             writer.write(out)
 
-        writer.release()
-        logging.info(f"Saved debug video: {output_path}")
+            # write remaining frames
+            for i, frame in enumerate(frames_iter, start=1):
+                out = frame.copy()
+                track = ball_tracks[i] if i < len(ball_tracks) else None
+                draw_frame(out, i, track)
+                writer.write(out)
+        finally:
+            writer.release()
 
+        logging.info(f"Saved debug video: {output_path}")

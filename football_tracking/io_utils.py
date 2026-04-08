@@ -11,17 +11,34 @@ class IOUtils:
 
     @staticmethod
     def save_json(data, path):
-        IOUtils.ensure_dir(os.path.dirname(path))
-        with open(path, "w") as f:
+        dir_name = os.path.dirname(path)
+        if dir_name:
+            IOUtils.ensure_dir(dir_name)
+
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
+            f.flush()
+
         logging.info(f"Saved JSON: {path}")
 
     @staticmethod
-    def load_json(path):
+    def load_json(path, default=None):
+        if default is None:
+            default = {}
+
         if not os.path.exists(path):
-            raise FileNotFoundError(f"File not found: {path}")
-        with open(path, "r") as f:
-            return json.load(f)
+            return default
+
+        if os.path.getsize(path) == 0:
+            logging.warning(f"JSON file is empty: {path}")
+            return default
+
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                logging.warning(f"JSON file contains no data: {path}")
+                return default
+            return json.loads(content)
 
     @staticmethod
     def file_exists(path):

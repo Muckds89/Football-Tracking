@@ -13,6 +13,14 @@ class EventDetector:
         self.left_goal = np.array(rois["left_goal"], dtype=np.int32)
         self.right_goal = np.array(rois["right_goal"], dtype=np.int32)
 
+    @staticmethod
+    def point_in_polygon(point, polygon):
+        if point is None or polygon is None or len(polygon) < 3:
+            return False
+
+        polygon_np = np.array(polygon, dtype=np.int32)
+        return cv2.pointPolygonTest(polygon_np, point, False) >= 0
+
     def point_in_roi(self, point, roi_polygon):
         if point is None:
             return False
@@ -160,5 +168,91 @@ class EventDetector:
             rows.append(row)
 
         return rows
+    
+    def detect_kickoff(self, ball_tracks, min_seconds=2.5, max_move_px=20):
+        min_frames = int(min_seconds * self.fps)
 
+        streak_start = None
+        prev_center = None
+        streak_len = 0
 
+        for i, track in enumerate(ball_tracks):
+            if not track:
+                streak_start = None
+                prev_center = None
+                streak_len = 0
+                continue
+
+            center = track.get("center")
+            if center is None:
+                streak_start = None
+                prev_center = None
+                streak_len = 0
+                continue
+
+            if not self.point_in_polygon(center, self.rois["center_pitch"]):
+                streak_start = None
+                prev_center = None
+                streak_len = 0
+                continue
+
+            if prev_center is None:
+                streak_start = i
+                prev_center = center
+                streak_len = 1
+                continue
+
+            dx = center[0] - prev_center[0]
+            dy = center[1] - prev_center[1]
+            dist2 = dx * dx + dy * dy
+
+            if dist2 <= max_move_px * max_move_px:
+                streak_len += 1
+            else:
+                streak_start = i
+                streak_len = 1
+
+            prev_center = center
+
+            if streak_len >= min_frames:
+                return {
+                    "frame": streak_start,
+                    "time_sec": streak_start / self.fps
+                }
+
+        return None
+
+    def build_highlight_windows(self,events, fps, seconds_before=20, seconds_after=10):
+        if not events:
+            return []
+
+        raw_windows = []
+        before_frames = int(seconds_before * fps)
+        after_frames = int(seconds_after * fps)
+
+        for ev in events:
+            trigger_frame = ev["start_frame"]
+            raw_windows.append({
+                "event": ev["event"],
+                "start_frame": max(0, trigger_frame - before_frames),
+                "end_frame": trigger_frame + after_frames,
+                "trigger_frame": trigger_frame,
+                "side": ev.get("side"),
+                "goal_touched": ev.get("goal_touched", False),
+            })
+
+        raw_windows.sort(key=lambda x: x["start_frame"])
+
+        merged = [raw_windows[0]]
+
+        for win in raw_windows[1:]:
+            last = merged[-1]
+
+            if win["start_frame"] <= last["end_frame"]:
+                last["end_frame"] = max(last["end_frame"], win["end_frame"])
+                if win.get("goal_touched"):
+                    last["goal_touched"] = True
+            else:
+                merged.append(win)
+
+        return merged
