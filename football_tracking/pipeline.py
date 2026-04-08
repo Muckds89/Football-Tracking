@@ -4,12 +4,14 @@ import json
 from ultralytics import YOLO
 
 from football_tracking.io_utils import IOUtils 
+from football_tracking.tracking.tracker import Tracker
 from football_tracking.utils.video_utils import VideoUtils
 from football_tracking.tracking.ball_tracker import BallTracker
 from football_tracking.tracking.interpolator import Interpolator
 from football_tracking.events.event_detector import EventDetector
 from football_tracking.highlights.highlight_writer import export_event_highlights
 from football_tracking.roi.roi_manager import ROIManager
+from football_tracking.team_assigner.team_assigner import TeamAssigner
 
 
 def process_video(video_path: str, config):
@@ -29,6 +31,37 @@ def process_video(video_path: str, config):
         logging.info("Loaded existing ROIs")
     else:
         raise Exception(f"ROIs not found for {video_name}. Please create them first.")
+
+    # 3. Players Detection
+    tracker = Tracker("yolov8n.pt")
+    logging.info("Initialized YOLOv8n tracker")
+
+    tracks = tracker.get_object_track_debug(
+        frames,
+        output_dir=config.output_dir,
+        read_from_stub=False,
+        stub_path="stubs/track_stub_debug.pkl"
+    )
+    logging.info(f"Extracted player tracks for {len(tracks['players'])} frames")
+
+    # 4. Assign teams to players
+    team_assigner = TeamAssigner()
+
+    if len(tracks["players"]) > 0 and len(tracks["players"][0]) > 0:
+        team_assigner.assign_team_color(frames[-1], tracks["players"][-1])
+
+    for frame_num, player_track in enumerate(tracks["players"]):
+        for player_id, track in player_track.items():
+            team = team_assigner.get_player_team(
+                frames[frame_num],
+                track["bbox"],
+                player_id
+            )
+            tracks["players"][frame_num][player_id]["team"] = team
+            tracks["players"][frame_num][player_id]["team_color"] = team_assigner.team_colors[team]
+            logging.debug(f"Frame {frame_num} | Player {player_id} assigned to team {team} with color {team_assigner.team_colors[team]}")
+
+    logging.info("Assigned teams to players")
 
     # 3. Ball tracking
     ball_tracker = BallTracker(config.model_path)
