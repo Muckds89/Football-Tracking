@@ -15,6 +15,10 @@ from football_tracking.highlights.highlight_writer import HIGHVideoUtils
 from football_tracking.roi.roi_manager import ROIManager
 from football_tracking.roi.roi_drawer_colab import annotate_rois_colab
 from football_tracking.roi.roi_drawer_local import ROIUtils
+from football_tracking.tracking.tracker import Tracker
+from football_tracking.team_assigner.team_assigner import TeamAssigner
+from football_tracking.player_ball_assigner.player_ball_assigner import PlayerBallAssigner
+
 
 
 import traceback
@@ -80,8 +84,40 @@ try:
             roi_manager.save_rois(video_name, rois)
             logging.info(f"Created ROIs for {video_name}")
         logging.info(f"Step 2 ROI handling done in {time.time() - start_time:.1f}s")
-            
-        # 3. Ball tracking
+
+        # 3. Players Tracking
+        tracker = Tracker("yolov8n.pt")
+        logging.info("Initialized YOLOv8n tracker")
+
+        tracks = tracker.get_player_tracks_from_video(
+            video_path=video_path,
+            read_from_stub=False,
+            stub_path="stubs/track_stub_debug.pkl",
+            batch_size=16
+        )
+
+        # 4. Assign Teams to Players
+        start_time = time.time()
+        tracks = TeamAssigner().assign_player_teams_from_video(video_path, tracks)
+        logging.info("Assigned teams to player tracks")
+        tracks = TeamAssigner().smooth_player_teams(tracks)    
+        logging.info("Smoothed player team assignments")
+        if False:
+            # debug video with tracks and teams
+            debug_output_path = os.path.join(
+                config.output_dir,
+                "debugs",
+                f"{video_stem}_debug.mp4"
+            )
+            VideoUtils.write_player_team_debug_video(
+                video_path=video_path,
+                tracks=tracks,
+                output_path=debug_output_path,
+                fps=fps
+            )
+        logging.info(f"Step 3 Player tracking and team assignment done in {time.time() - start_time:.1f}s")
+
+        # 5. Ball tracking
         start_time = time.time()
         ball_tracker = BallTracker(config.model_path)
         ball_tracks = ball_tracker.get_ball_tracks(video_path)
@@ -90,13 +126,18 @@ try:
         logging.info(f"Ball detected in {detected}/{len(ball_tracks)} frames")
         logging.info(f"Step 3 Ball tracking done in {time.time() - start_time:.1f}s")
 
-        # 4. Interpolation
+        # 6. Interpolation
         start_time = time.time()
         interpolator = Interpolator()
         ball_tracks_filled = interpolator.interpolate_ball_tracks(ball_tracks)
         logging.info(f"Step 4 Interpolation done in {time.time() - start_time:.1f}s")
 
-        # 5. Event detection
+        # 7. Infer team in ball control
+        team_ball_control = PlayerBallAssigner().infer_team_ball_control(tracks, ball_tracks_filled)
+        team_ball_control = PlayerBallAssigner().smooth_team_control(team_ball_control)
+
+
+        # 7. Event detection
         start_time = time.time()
         event_detector = EventDetector(rois, fps=config.fps)
 
@@ -140,11 +181,12 @@ try:
         highlight_windows = event_detector.build_highlight_windows(
             raw_events,
             fps=fps,
-            seconds_before=20,
-            seconds_after=10
+            seconds_before=15,
+            seconds_after=5
         )
         if kickoff_event is not None:
             highlight_windows = [kickoff_event] + highlight_windows
+        
         # 6. Export highlights
         start_time = time.time()
         output_highlight_path = os.path.join(

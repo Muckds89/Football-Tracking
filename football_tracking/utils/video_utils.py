@@ -280,3 +280,207 @@ class VideoUtils:
             writer.release()
 
         logging.info(f"Saved debug video: {output_path}")
+
+    @staticmethod
+    def write_player_team_debug_video(
+        video_path,
+        tracks,
+        output_path,
+        rois=None,
+        ball_tracks=None,
+        fps=None
+    ):
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
+
+        video_fps = cap.get(cv2.CAP_PROP_FPS)
+        if fps is None:
+            fps = video_fps if video_fps and video_fps > 0 else 25
+
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        writer = cv2.VideoWriter(
+            output_path,
+            cv2.VideoWriter_fourcc(*"mp4v"),
+            fps,
+            (width, height)
+        )
+
+        roi_polys = {}
+        if rois is not None:
+            roi_polys = {
+                name: np.array(points, dtype=np.int32)
+                for name, points in rois.items()
+            }
+
+        # default colors for teams
+        TEAM_COLORS = {
+            "vest_team": (0, 255, 255),   # yellow-ish in BGR
+            "other_team": (255, 0, 0),    # blue
+            "unknown": (180, 180, 180)    # gray
+        }
+
+        frame_idx = 0
+
+        try:
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                out = frame.copy()
+
+                # draw ROIs
+                for roi_name, poly in roi_polys.items():
+                    cv2.polylines(out, [poly], True, (0, 255, 0), 2)
+                    x, y = poly[0]
+                    cv2.putText(
+                        out,
+                        roi_name,
+                        (int(x), int(y)),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        0.6,
+                        (0, 255, 0),
+                        2
+                    )
+
+                # draw players
+                if frame_idx < len(tracks["players"]):
+                    frame_players = tracks["players"][frame_idx]
+
+                    for player_id, info in frame_players.items():
+                        bbox = info.get("bbox")
+                        if bbox is None:
+                            continue
+
+                        x1, y1, x2, y2 = map(int, bbox)
+
+                        team = info.get("team", "unknown")
+                        vest_ratio = info.get("vest_ratio", None)
+                        has_ball = info.get("has_ball", False)
+
+                        color = TEAM_COLORS.get(team, TEAM_COLORS["unknown"])
+
+                        # player box
+                        cv2.rectangle(out, (x1, y1), (x2, y2), color, 2)
+
+                        # label lines
+                        label_1 = f"id:{player_id} team:{team}"
+
+                        if vest_ratio is not None:
+                            try:
+                                label_2 = f"vest:{float(vest_ratio):.2f}"
+                            except (ValueError, TypeError):
+                                label_2 = f"vest:{vest_ratio}"
+                        else:
+                            label_2 = None
+
+                        # background for readability
+                        cv2.rectangle(
+                            out,
+                            (x1, max(0, y1 - 40)),
+                            (x1 + 180, y1),
+                            (0, 0, 0),
+                            -1
+                        )
+
+                        cv2.putText(
+                            out,
+                            label_1,
+                            (x1, max(15, y1 - 22)),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            0.5,
+                            color,
+                            2
+                        )
+
+                        if label_2 is not None:
+                            cv2.putText(
+                                out,
+                                label_2,
+                                (x1, max(15, y1 - 5)),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.5,
+                                color,
+                                2
+                            )
+
+                        # mark possession
+                        if has_ball:
+                            cv2.putText(
+                                out,
+                                "HAS BALL",
+                                (x1, y2 + 18),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.6,
+                                (0, 255, 255),
+                                2
+                            )
+                            cv2.circle(out, (x1 - 8, y1 - 8), 6, (0, 255, 255), -1)
+
+                # draw ball
+                if ball_tracks is not None and frame_idx < len(ball_tracks):
+                    track = ball_tracks[frame_idx]
+
+                    if track is not None:
+                        bbox = track.get("bbox")
+                        center = track.get("center")
+                        conf = track.get("conf", None)
+                        is_interp = track.get("interpolated", False)
+
+                        if bbox is not None:
+                            x1, y1, x2, y2 = map(int, bbox)
+                            cv2.rectangle(out, (x1, y1), (x2, y2), (255, 255, 0), 2)
+
+                        if center is None and bbox is not None:
+                            x1, y1, x2, y2 = bbox
+                            center = [int((x1 + x2) / 2), int((y1 + y2) / 2)]
+
+                        if center is not None:
+                            cx, cy = map(int, center)
+                            point_color = (0, 165, 255) if is_interp else (0, 0, 255)
+                            cv2.circle(out, (cx, cy), 5, point_color, -1)
+
+                            label = "ball(interp)" if is_interp else "ball"
+                            cv2.putText(
+                                out,
+                                f"{label}: ({cx},{cy})",
+                                (cx + 10, cy - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.5,
+                                point_color,
+                                2
+                            )
+
+                        if conf is not None:
+                            cv2.putText(
+                                out,
+                                f"ball conf: {conf:.2f}",
+                                (20, 90),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.7,
+                                (255, 255, 255),
+                                2
+                            )
+
+                # frame number
+                cv2.putText(
+                    out,
+                    f"frame: {frame_idx}",
+                    (20, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.8,
+                    (255, 255, 255),
+                    2
+                )
+
+                writer.write(out)
+                frame_idx += 1
+
+        finally:
+            cap.release()
+            writer.release()
+
+        logging.info(f"Saved debug video: {output_path}")

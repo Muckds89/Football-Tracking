@@ -114,7 +114,6 @@ class Tracker:
 
         tracks={
             "players":[],
-            "ball":[]
         }
         for frame_num, detection in enumerate(detections):
             cls_names = detection.names
@@ -132,7 +131,6 @@ class Tracker:
             detection_with_tracks = self.tracker.update_with_detections(detection_supervision)
 
             tracks["players"].append({})
-            tracks["ball"].append({})
 
             for frame_detection in detection_with_tracks:
                 bbox = frame_detection[0].tolist()
@@ -148,9 +146,6 @@ class Tracker:
                 frame_idx = frame_num
                 bbox = frame_detection[0].tolist()
                 cls_id = frame_detection[3]
-
-                if cls_id == cls_names_inv['sports ball']:
-                    tracks["ball"][frame_num][1] = {"bbox":bbox}
                 
                 if frame_idx < len(frames):
                     results = self.model(frames[frame_idx], conf=0.10, verbose=False)
@@ -160,11 +155,6 @@ class Tracker:
                     print(f"Saved {out_path}")
 
                 # print classes found
-                if results[0].boxes is not None:
-                    cls_ids = results[0].boxes.cls.cpu().numpy()
-                    names = [self.model.names[int(c)] for c in cls_ids]
-                    print(f"Frame {frame_idx}: {names}")
-
 
         if stub_path is not None:
             with open(stub_path,'wb') as f:
@@ -305,3 +295,79 @@ class Tracker:
             output_video_frames.append(frame)
 
         return output_video_frames
+    
+
+    def iter_video_batches(self,video_path, batch_size=16):
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            raise ValueError(f"Cannot open video: {video_path}")
+
+        batch = []
+        frame_idx = 0
+
+        try:
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+
+                batch.append((frame_idx, frame))
+                frame_idx += 1
+
+                if len(batch) == batch_size:
+                    yield batch
+                    batch = []
+
+            if batch:
+                yield batch
+        finally:
+            cap.release()
+
+    def get_player_tracks_from_video(self, video_path, read_from_stub=False, stub_path=None, batch_size=16):
+        if read_from_stub and stub_path is not None and os.path.exists(stub_path):
+            with open(stub_path, "rb") as f:
+                tracks = pickle.load(f)
+            return tracks
+
+        tracks = {
+            "players": []
+        }
+
+        for batch in self.iter_video_batches(video_path, batch_size=batch_size):
+            batch_indices = [item[0] for item in batch]
+            batch_frames = [item[1] for item in batch]
+
+            detections_batch = self.model.predict(batch_frames, conf=0.25, verbose=False)
+
+            for frame_num, detection in zip(batch_indices, detections_batch):
+                cls_names = detection.names
+                cls_names_inv = {v: k for k, v in cls_names.items()}
+
+                detection_supervision = sv.Detections.from_ultralytics(detection)
+
+                # football-specific models only
+                if "goalkeeper" in cls_names_inv and "player" in cls_names_inv:
+                    for object_ind, class_id in enumerate(detection_supervision.class_id):
+                        if cls_names[class_id] == "goalkeeper":
+                            detection_supervision.class_id[object_ind] = cls_names_inv["player"]
+
+                detection_with_tracks = self.tracker.update_with_detections(detection_supervision)
+
+                while len(tracks["players"]) <= frame_num:
+                    tracks["players"].append({})
+
+                for frame_detection in detection_with_tracks:
+                    bbox = frame_detection[0].tolist()
+                    cls_id = frame_detection[3]
+                    track_id = frame_detection[4]
+
+                    if "player" in cls_names_inv and cls_id == cls_names_inv["player"]:
+                        tracks["players"][frame_num][track_id] = {"bbox": bbox}
+                    elif "person" in cls_names_inv and cls_id == cls_names_inv["person"]:
+                        tracks["players"][frame_num][track_id] = {"bbox": bbox}
+
+        if stub_path is not None:
+            with open(stub_path, "wb") as f:
+                pickle.dump(tracks, f)
+
+        return tracks

@@ -9,3 +9,106 @@
 2026-04-08 21:53:51,356 [INFO] Created ROIs for Kickoff_2.mp4
 2026-04-08 21:53:51,356 [INFO] Step 2 ROI handling done in 43.6s
 2026-04-08 21:53:52,647 [INFO] Tracking progress: 0/2322 frames (0.0%)
+2026-04-09 07:25:33,114 [INFO] Found 1 new videos
+2026-04-09 07:25:33,116 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 07:25:33,540 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 07:25:33,738 [INFO] Step 1 Load Frames done in 0.6s
+2026-04-09 07:25:33,749 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 07:25:33,886 [INFO] Initialized YOLOv8n tracker
+2026-04-09 07:28:34,987 [ERROR] Failed processing Kickoff_2.mp4: [Errno 2] No such file or directory: 'stubs/track_stub_debug.pkl'
+2026-04-09 07:46:18,872 [INFO] Found 1 new videos
+2026-04-09 07:46:18,881 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 07:46:19,029 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 07:46:19,240 [INFO] Step 1 Load Frames done in 0.4s
+2026-04-09 07:46:19,246 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 07:46:19,629 [INFO] Initialized YOLOv8n tracker
+2026-04-09 07:49:44,795 [ERROR] Failed processing Kickoff_2.mp4: too many values to unpack (expected 2)
+2026-04-09 07:52:49,071 [INFO] Found 1 new videos
+2026-04-09 07:52:49,071 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 07:52:49,151 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 07:52:49,345 [INFO] Step 1 Load Frames done in 0.3s
+2026-04-09 07:52:49,347 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 07:52:49,425 [INFO] Initialized YOLOv8n tracker
+2026-04-09 07:56:45,253 [INFO] Assigned teams to player tracks
+2026-04-09 07:56:45,400 [INFO] Smoothed player team assignments
+2026-04-09 08:07:29,751 [INFO] Found 1 new videos
+2026-04-09 08:07:29,753 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 08:07:29,916 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 08:07:30,116 [INFO] Step 1 Load Frames done in 0.4s
+2026-04-09 08:07:30,117 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 08:07:30,237 [INFO] Initialized YOLOv8n tracker
+2026-04-09 08:10:37,692 [INFO] Assigned teams to player tracks
+2026-04-09 08:10:37,904 [INFO] Smoothed player team assignments
+2026-04-09 08:10:38,104 [ERROR] Failed processing Kickoff_2.mp4: Unknown format code 'f' for object of type 'str'
+2026-04-09 08:20:16,783 [INFO] Found 1 new videos
+2026-04-09 08:20:16,784 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 08:20:16,849 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 08:20:17,034 [INFO] Step 1 Load Frames done in 0.2s
+2026-04-09 08:20:17,036 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 08:20:17,102 [INFO] Initialized YOLOv8n tracker
+2026-04-09 08:23:15,326 [ERROR] Failed processing Kickoff_2.mp4: could not convert string to float: 'vest_team'
+2026-04-09 08:41:02,974 [INFO] Found 1 new videos
+2026-04-09 08:41:02,975 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 08:41:03,143 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 08:41:03,344 [INFO] Step 1 Load Frames done in 0.4s
+2026-04-09 08:41:03,345 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 08:41:03,442 [INFO] Initialized YOLOv8n tracker
+2026-04-09 08:44:05,284 [INFO] Assigned teams to player tracks
+2026-04-09 08:44:05,294 [INFO] Smoothed player team assignments
+2026-04-09 08:44:52,165 [INFO] Saved debug video: C:\Users\marco\Projects\Football-Tracking\output_videos\debugs\Kickoff_2_debug.mp4
+2026-04-09 08:44:52,167 [INFO] Step 3 Player tracking and team assignment done in 61.3s
+2026-04-09 08:55:55,140 [INFO] Found 1 new videos
+2026-04-09 08:55:55,140 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 08:55:55,278 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 08:55:55,475 [INFO] Step 1 Load Frames done in 0.3s
+2026-04-09 08:55:55,477 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 08:55:55,575 [INFO] Initialized YOLOv8n tracker
+2026-04-09 08:59:22,463 [INFO] Assigned teams to player tracks
+2026-04-09 08:59:22,479 [INFO] Smoothed player team assignments
+2026-04-09 08:59:22,479 [INFO] Step 3 Player tracking and team assignment done in 20.3s
+2026-04-09 08:59:23,477 [INFO] Tracking progress: 0/2322 frames (0.0%)
+2026-04-09 09:04:47,040 [INFO] Tracking progress: 1000/2322 frames (43.1%)
+2026-04-09 09:11:21,378 [INFO] Ball detected in 849/2322 frames
+2026-04-09 09:11:21,378 [INFO] Step 3 Ball tracking done in 718.9s
+2026-04-09 09:11:21,389 [INFO] Step 4 Interpolation done in 0.0s
+2026-04-09 09:11:21,397 [ERROR] Failed processing Kickoff_2.mp4: cannot unpack non-iterable NoneType object
+2026-04-09 09:25:06,561 [INFO] Found 1 new videos
+2026-04-09 09:25:06,562 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 09:25:06,679 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 09:25:06,865 [INFO] Step 1 Load Frames done in 0.3s
+2026-04-09 09:25:06,866 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 09:25:06,946 [INFO] Initialized YOLOv8n tracker
+2026-04-09 09:28:01,744 [INFO] Assigned teams to player tracks
+2026-04-09 09:28:01,754 [INFO] Smoothed player team assignments
+2026-04-09 09:28:01,755 [INFO] Step 3 Player tracking and team assignment done in 13.6s
+2026-04-09 09:28:02,521 [INFO] Tracking progress: 0/2322 frames (0.0%)
+2026-04-09 09:32:29,009 [INFO] Tracking progress: 1000/2322 frames (43.1%)
+2026-04-09 09:38:34,317 [INFO] Ball detected in 849/2322 frames
+2026-04-09 09:38:34,318 [INFO] Step 3 Ball tracking done in 632.6s
+2026-04-09 09:38:34,321 [INFO] Step 4 Interpolation done in 0.0s
+2026-04-09 09:38:34,341 [ERROR] Failed processing Kickoff_2.mp4: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+2026-04-09 09:44:47,552 [INFO] Found 1 new videos
+2026-04-09 09:44:47,553 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_2.mp4
+2026-04-09 09:44:47,628 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 09:44:47,818 [INFO] Step 1 Load Frames done in 0.3s
+2026-04-09 09:44:47,819 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 09:44:47,889 [INFO] Initialized YOLOv8n tracker
+2026-04-09 09:47:51,776 [INFO] Assigned teams to player tracks
+2026-04-09 09:47:51,789 [INFO] Smoothed player team assignments
+2026-04-09 09:47:51,789 [INFO] Step 3 Player tracking and team assignment done in 13.9s
+2026-04-09 09:47:52,640 [INFO] Tracking progress: 0/2322 frames (0.0%)
+2026-04-09 09:52:59,766 [INFO] Tracking progress: 1000/2322 frames (43.1%)
+2026-04-09 09:59:16,342 [INFO] Ball detected in 849/2322 frames
+2026-04-09 09:59:16,343 [INFO] Step 3 Ball tracking done in 684.6s
+2026-04-09 09:59:16,346 [INFO] Step 4 Interpolation done in 0.0s
+2026-04-09 09:59:16,393 [INFO] Kickoff detected at frame 312
+2026-04-09 09:59:16,402 [INFO] Detected 3 raw events
+2026-04-09 09:59:16,402 [INFO] Step 5 Event detection done in 0.0s
+2026-04-09 09:59:16,490 [INFO] Writing highlight 1: kickoff | frames 162 - 552
+2026-04-09 09:59:24,412 [INFO] Writing highlight 2: right_penalty_pressure | frames 510 - 2321
+2026-04-09 09:59:57,401 [INFO] Created highlight video: C:\Users\marco\Projects\Football-Tracking\output_videos\highlights\Kickoff_2.mp4_highlights.mp4
+2026-04-09 09:59:57,403 [INFO] Step 6 Export highlights done in 41.0s
+2026-04-09 09:59:57,405 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\output_videos\events\Kickoff_2.mp4_events.json
+2026-04-09 09:59:57,405 [INFO] Finished processing Kickoff_2.mp4
+2026-04-09 09:59:57,405 [INFO] Step 7 Save events JSON done in 0.0s
+2026-04-09 09:59:57,420 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\manifests\processed_videos.json
