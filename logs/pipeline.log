@@ -140,3 +140,21 @@
 2026-04-09 10:41:04,883 [INFO] Finished processing Kickoff_3.mp4
 2026-04-09 10:41:04,883 [INFO] Step 7 Save events JSON done in 0.0s
 2026-04-09 10:41:04,903 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\manifests\processed_videos.json
+2026-04-09 11:03:00,694 [INFO] Found 1 new videos
+2026-04-09 11:03:00,697 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Video Project 13.mp4
+2026-04-09 11:03:00,865 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 9222, 'width': 1920, 'height': 1080}
+2026-04-09 11:03:01,094 [INFO] Step 1 Load Frames done in 0.4s
+2026-04-09 11:03:01,118 [INFO] Saved frame to C:\Users\marco\Projects\Football-Tracking\output_videos\reference_frames\Video Project 13_last_frame.jpg
+2026-04-09 11:04:18,953 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\rois\Video Project 13_rois.json
+2026-04-09 11:04:18,953 [INFO] Created ROIs for Video Project 13.mp4
+2026-04-09 11:04:18,955 [INFO] Step 2 ROI handling done in 77.9s
+2026-04-09 11:04:19,154 [INFO] Initialized YOLOv8n tracker
+2026-04-09 11:05:20,712 [INFO] Found 1 new videos
+2026-04-09 11:05:20,713 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Video Project 13.mp4
+2026-04-09 11:05:20,763 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 9222, 'width': 1920, 'height': 1080}
+2026-04-09 11:05:20,976 [INFO] Step 1 Load Frames done in 0.3s
+2026-04-09 11:05:20,985 [INFO] Saved frame to C:\Users\marco\Projects\Football-Tracking\output_videos\reference_frames\Video Project 13_last_frame.jpg
+2026-04-09 11:06:01,226 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\rois\Video Project 13_rois.json
+2026-04-09 11:06:01,226 [INFO] Created ROIs for Video Project 13.mp4
+2026-04-09 11:06:01,226 [INFO] Step 2 ROI handling done in 40.3s
+2026-04-09 11:06:01,374 [INFO] Initialized YOLOv8n tracker

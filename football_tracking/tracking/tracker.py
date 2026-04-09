@@ -324,6 +324,10 @@ class Tracker:
             cap.release()
 
     def get_player_tracks_from_video(self, video_path, read_from_stub=False, stub_path=None, batch_size=16):
+        if stub_path is not None:
+            os.makedirs(os.path.dirname(stub_path), exist_ok=True)
+
+        pickle.dump(tracks, f)        
         if read_from_stub and stub_path is not None and os.path.exists(stub_path):
             with open(stub_path, "rb") as f:
                 tracks = pickle.load(f)

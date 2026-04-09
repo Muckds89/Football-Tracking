@@ -93,7 +93,7 @@ try:
         tracks = tracker.get_player_tracks_from_video(
             video_path=video_path,
             read_from_stub=False,
-            stub_path="stubs/track_stub_debug.pkl",
+            stub_path="../stubs/track_stub_debug.pkl",
             batch_size=16
         )
 
