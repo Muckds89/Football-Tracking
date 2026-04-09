@@ -1,0 +1,26 @@
+[
+  {
+    "event": "other_team_left_penalty_pressure",
+    "team": "other_team",
+    "start_frame": 1513,
+    "end_frame": 1569,
+    "start_time_sec": 50.43333333333333,
+    "end_time_sec": 52.3,
+    "duration_sec": 2.28,
+    "max_hits_in_window": 8,
+    "goal_touched": false,
+    "side": "left"
+  },
+  {
+    "event": "other_team_left_penalty_pressure",
+    "team": "other_team",
+    "start_frame": 1587,
+    "end_frame": 1609,
+    "start_time_sec": 52.9,
+    "end_time_sec": 53.63333333333333,
+    "duration_sec": 0.92,
+    "max_hits_in_window": 8,
+    "goal_touched": false,
+    "side": "left"
+  }
+]

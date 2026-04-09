@@ -112,3 +112,31 @@
 2026-04-09 09:59:57,405 [INFO] Finished processing Kickoff_2.mp4
 2026-04-09 09:59:57,405 [INFO] Step 7 Save events JSON done in 0.0s
 2026-04-09 09:59:57,420 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\manifests\processed_videos.json
+2026-04-09 10:25:29,472 [INFO] Found 1 new videos
+2026-04-09 10:25:29,482 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\Kickoff_3.mp4
+2026-04-09 10:25:29,670 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 2322, 'width': 1920, 'height': 1080}
+2026-04-09 10:25:29,862 [INFO] Step 1 Load Frames done in 0.4s
+2026-04-09 10:25:29,890 [INFO] Saved frame to C:\Users\marco\Projects\Football-Tracking\output_videos\reference_frames\Kickoff_3_last_frame.jpg
+2026-04-09 10:26:12,424 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\rois\Kickoff_3_rois.json
+2026-04-09 10:26:12,424 [INFO] Created ROIs for Kickoff_3.mp4
+2026-04-09 10:26:12,424 [INFO] Step 2 ROI handling done in 42.6s
+2026-04-09 10:26:12,633 [INFO] Initialized YOLOv8n tracker
+2026-04-09 10:29:15,181 [INFO] Assigned teams to player tracks
+2026-04-09 10:29:15,202 [INFO] Smoothed player team assignments
+2026-04-09 10:29:15,203 [INFO] Step 3 Player tracking and team assignment done in 18.2s
+2026-04-09 10:29:16,053 [INFO] Tracking progress: 0/2322 frames (0.0%)
+2026-04-09 10:34:14,597 [INFO] Tracking progress: 1000/2322 frames (43.1%)
+2026-04-09 10:40:42,462 [INFO] Ball detected in 849/2322 frames
+2026-04-09 10:40:42,463 [INFO] Step 3 Ball tracking done in 687.3s
+2026-04-09 10:40:42,470 [INFO] Step 4 Interpolation done in 0.0s
+2026-04-09 10:40:42,540 [INFO] Kickoff detected at frame 312
+2026-04-09 10:40:42,557 [INFO] Detected 2 raw events
+2026-04-09 10:40:42,557 [INFO] Step 5 Event detection done in 0.0s
+2026-04-09 10:40:42,643 [INFO] Writing highlight 1: kickoff | frames 162 - 552
+2026-04-09 10:40:51,206 [INFO] Writing highlight 2: other_team_left_penalty_pressure | frames 1063 - 1737
+2026-04-09 10:41:04,877 [INFO] Created highlight video: C:\Users\marco\Projects\Football-Tracking\output_videos\highlights\Kickoff_3.mp4_highlights.mp4
+2026-04-09 10:41:04,878 [INFO] Step 6 Export highlights done in 22.3s
+2026-04-09 10:41:04,883 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\output_videos\events\Kickoff_3.mp4_events.json
+2026-04-09 10:41:04,883 [INFO] Finished processing Kickoff_3.mp4
+2026-04-09 10:41:04,883 [INFO] Step 7 Save events JSON done in 0.0s
+2026-04-09 10:41:04,903 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\manifests\processed_videos.json

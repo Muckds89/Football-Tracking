@@ -13,3 +13,5 @@ class PipelineConfig:
     seconds_after: int = 10
     conf_threshold: float = 0.25
     environment: str = "local"   # "local" or "colab"
+    has_kickoff: bool = True
+    team_attack_directions: dict = None

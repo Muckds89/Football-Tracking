@@ -1,3 +1,4 @@
+from logging import config
 import os
 import logging
 import json
@@ -141,33 +142,55 @@ try:
         start_time = time.time()
         event_detector = EventDetector(rois, fps=config.fps)
 
-
-        kickoff = event_detector.detect_kickoff(ball_tracks_filled)
+        kickoff = None
+        if config.has_kickoff:
+            kickoff = event_detector.detect_kickoff(ball_tracks_filled)
 
         if kickoff is None:
-            logging.warning("No kickoff detected, using all frames")
-            filtered_tracks = ball_tracks_filled
+            logging.info("Kickoff disabled or not detected, using all frames")
             start_frame_for_events = 0
+            filtered_tracks = ball_tracks_filled
+            filtered_team_ball_control = team_ball_control
         else:
-            kickoff_frame = kickoff["frame"]
-            kickoff_event = {
-                "event": "kickoff",
-                "start_frame": max(0, kickoff_frame - int(5 * fps)),
-                "end_frame": min(total_frames - 1, kickoff_frame + int(8 * fps)),
-                "start_time_sec": max(0, kickoff_frame - int(5 * fps)) / fps,
-                "end_time_sec": min(total_frames - 1, kickoff_frame + int(8 * fps)) / fps,
-            }
             start_frame_for_events = kickoff["frame"]
             filtered_tracks = ball_tracks_filled[start_frame_for_events:]
+            filtered_team_ball_control = team_ball_control[start_frame_for_events:]
+            kickoff_event = {
+                "event": "kickoff",
+                "start_frame": max(0, start_frame_for_events - int(5 * fps)),
+                "end_frame": min(total_frames - 1, start_frame_for_events + int(8 * fps)),
+                "start_time_sec": max(0, start_frame_for_events - int(5 * fps)) / fps,
+                "end_time_sec": min(total_frames - 1, start_frame_for_events + int(8 * fps)) / fps,
+            }
             logging.info(f"Kickoff detected at frame {start_frame_for_events}")
 
 
-        raw_events = event_detector.detect_penalty_pressure_merged(
-            filtered_tracks,
-            window_size=8,
-            min_hits=3
+
+        raw_events = []
+
+        raw_events.extend(
+            event_detector.detect_penalty_pressure_merged(
+                ball_tracks=filtered_tracks,
+                team_ball_control=filtered_team_ball_control,
+                attacking_team="vest_team",
+                side=config.team_attack_directions["vest_team"],
+                window_size=8,
+                min_hits=3,
+                min_possession_hits=3,
+            )
         )
 
+        raw_events.extend(
+            event_detector.detect_penalty_pressure_merged(
+                ball_tracks=filtered_tracks,
+                team_ball_control=filtered_team_ball_control,
+                attacking_team="other_team",
+                side=config.team_attack_directions["other_team"],
+                window_size=8,
+                min_hits=3,
+                min_possession_hits=3,
+            )
+        )
         logging.info(f"Detected {len(raw_events)} raw events")
         logging.info(f"Step 5 Event detection done in {time.time() - start_time:.1f}s")
 
