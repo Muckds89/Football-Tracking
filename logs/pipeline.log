@@ -182,3 +182,34 @@
 2026-04-09 12:22:25,419 [INFO] Created ROIs for Video Project 14.mp4
 2026-04-09 12:22:25,441 [INFO] Step 2 ROI handling done in 43.9s
 2026-04-09 12:22:25,654 [INFO] Initialized YOLOv8n tracker
+2026-04-09 12:41:28,094 [INFO] Found 1 new videos
+2026-04-09 12:41:28,115 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\DJI_20260329183038_0002_D.mp4
+2026-04-09 12:41:28,264 [INFO] Video metadata: {'fps': 25.0, 'frame_count': 68282, 'width': 1280, 'height': 720}
+2026-04-09 12:41:28,442 [INFO] Step 1 Load Frames done in 0.3s
+2026-04-09 12:41:28,463 [INFO] Saved frame to C:\Users\marco\Projects\Football-Tracking\output_videos\reference_frames\DJI_20260329183038_0002_D_last_frame.jpg
+2026-04-09 12:42:08,701 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\rois\DJI_20260329183038_0002_D_rois.json
+2026-04-09 12:42:08,702 [INFO] Created ROIs for DJI_20260329183038_0002_D.mp4
+2026-04-09 12:42:08,703 [INFO] Step 2 ROI handling done in 40.3s
+2026-04-09 12:42:09,072 [INFO] Initialized YOLOv8n tracker
+2026-04-09 14:39:57,285 [INFO] Assigned teams to player tracks
+2026-04-09 14:39:58,440 [INFO] Smoothed player team assignments
+2026-04-09 14:39:58,442 [INFO] Step 3 Player tracking and team assignment done in 407.1s
+2026-04-09 14:46:17,985 [INFO] Tracking progress: 1000/68282 frames (1.5%)
+2026-04-09 14:53:10,732 [INFO] Tracking progress: 2000/68282 frames (2.9%)
+2026-04-09 15:07:10,055 [INFO] Tracking progress: 4000/68282 frames (5.9%)
+2026-04-09 15:12:53,905 [INFO] Tracking progress: 5000/68282 frames (7.3%)
+2026-04-09 15:21:33,299 [INFO] Tracking progress: 6000/68282 frames (8.8%)
+2026-04-09 15:29:15,828 [INFO] Tracking progress: 7000/68282 frames (10.3%)
+2026-04-09 15:36:14,003 [INFO] Tracking progress: 8000/68282 frames (11.7%)
+2026-04-09 15:43:30,890 [INFO] Tracking progress: 9000/68282 frames (13.2%)
+2026-04-09 15:51:33,693 [INFO] Found 1 new videos
+2026-04-09 15:51:33,706 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\DJI_20260329183038_0002_D.mp4
+2026-04-09 15:51:33,871 [INFO] Video metadata: {'fps': 25.0, 'frame_count': 68282, 'width': 1280, 'height': 720}
+2026-04-09 15:51:34,178 [INFO] Step 1 Load Frames done in 0.5s
+2026-04-09 15:51:34,220 [INFO] Step 2 ROI handling done in 0.0s
+2026-04-09 15:51:34,556 [INFO] Initialized YOLOv8n tracker
+2026-04-09 15:56:19,278 [INFO] Found 0 new videos
+2026-04-09 15:56:41,504 [INFO] Found 0 new videos
+2026-04-09 15:56:43,627 [INFO] Found 0 new videos
+2026-04-09 15:56:45,554 [INFO] Found 0 new videos
+2026-04-09 15:57:14,631 [INFO] Found 0 new videos
