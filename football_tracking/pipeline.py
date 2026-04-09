@@ -141,11 +141,12 @@ try:
         team_ball_control = PlayerBallAssigner().smooth_team_control(team_ball_control)
 
 
-        # 7. Event detection
+        # 8. Event detection
         start_time = time.time()
         event_detector = EventDetector(rois, fps=config.fps)
 
         kickoff = None
+        kickoff_event = None
         if config.has_kickoff:
             kickoff = event_detector.detect_kickoff(ball_tracks_filled)
 
