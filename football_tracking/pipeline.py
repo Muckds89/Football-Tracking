@@ -89,6 +89,9 @@ try:
         # 3. Players Tracking
         tracker = Tracker("yolov8n.pt")
         logging.info("Initialized YOLOv8n tracker")
+        #make folder for stubs if not exists
+        stubs_dir = "../stubs"
+        os.makedirs(stubs_dir, exist_ok=True)
 
         tracks = tracker.get_player_tracks_from_video(
             video_path=video_path,
