@@ -324,10 +324,6 @@ class Tracker:
             cap.release()
 
     def get_player_tracks_from_video(self, video_path, read_from_stub=False, stub_path=None, batch_size=16):
-        if stub_path is not None:
-            os.makedirs(os.path.dirname(stub_path), exist_ok=True)
-
-        pickle.dump(tracks, f)        
         if read_from_stub and stub_path is not None and os.path.exists(stub_path):
             with open(stub_path, "rb") as f:
                 tracks = pickle.load(f)
@@ -341,7 +337,7 @@ class Tracker:
             batch_indices = [item[0] for item in batch]
             batch_frames = [item[1] for item in batch]
 
-            detections_batch = self.model.predict(batch_frames, conf=0.25, verbose=False)
+            detections_batch = self.model.predict(batch_frames, conf=0.1, verbose=False)
 
             for frame_num, detection in zip(batch_indices, detections_batch):
                 cls_names = detection.names
@@ -349,7 +345,6 @@ class Tracker:
 
                 detection_supervision = sv.Detections.from_ultralytics(detection)
 
-                # football-specific models only
                 if "goalkeeper" in cls_names_inv and "player" in cls_names_inv:
                     for object_ind, class_id in enumerate(detection_supervision.class_id):
                         if cls_names[class_id] == "goalkeeper":
@@ -371,6 +366,10 @@ class Tracker:
                         tracks["players"][frame_num][track_id] = {"bbox": bbox}
 
         if stub_path is not None:
+            stub_dir = os.path.dirname(stub_path)
+            if stub_dir:
+                os.makedirs(stub_dir, exist_ok=True)
+
             with open(stub_path, "wb") as f:
                 pickle.dump(tracks, f)
 
