@@ -92,11 +92,12 @@ try:
         #make folder for stubs if not exists
         stubs_dir = "../stubs"
         os.makedirs(stubs_dir, exist_ok=True)
+        stub_path = os.path.join(stubs_dir, "track_stub_debug.pkl")
 
         tracks = tracker.get_player_tracks_from_video(
             video_path=video_path,
             read_from_stub=False,
-            stub_path="../stubs/track_stub_debug.pkl",
+            stub_path=stub_path,
             batch_size=16
         )
 
