@@ -15,3 +15,4 @@ class PipelineConfig:
     environment: str = "local"   # "local" or "colab"
     has_kickoff: bool = True
     team_attack_directions: dict = None
+    stubs_dir: str = "stubs"
