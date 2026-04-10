@@ -8,9 +8,9 @@ import os
 
 
 
-def extract_last_number(filename):
-    matches = re.findall(r'(\d+)', Path(filename).stem)
-    return int(matches[-1]) if matches else -1
+def extract_clip_number(filename):
+    match = re.search(r'_(\d{4})_D', filename)
+    return int(match.group(1)) if match else -1
 
 
 def normalize_video(input_path, output_path, width=1920, height=1080, fps=30):
@@ -36,10 +36,8 @@ def concatenate_videos(input_dir, output_path):
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
     input_dir = Path(input_dir)
 
-    video_files = sorted(
-        [p for p in input_dir.iterdir() if p.suffix.lower() == ".mp4"],
-        key=lambda p: extract_last_number(p.name)
-    )
+    video_files = list(input_dir.glob("*.mp4")) # Added this line to get video files
+    video_files = sorted(video_files, key=lambda p: extract_clip_number(p.name))
 
     if not video_files:
         raise ValueError("No videos found")
@@ -86,7 +84,7 @@ def concatenate_videos(input_dir, output_path):
 
 
 if __name__ == "__main__":
-    input_dir = "../output_videos/highlights"
-    output_path = '../output_videos/combined/29032026_combined_highlights.mp4'
+    input_dir = "/content/drive/MyDrive/FootballTracking/output_videos/highlights"
+    output_path = '/content/drive/MyDrive/FootballTracking/output_videos/combined/29032026_combined_highlights.mp4'
 
     concatenate_videos(input_dir, output_path)
