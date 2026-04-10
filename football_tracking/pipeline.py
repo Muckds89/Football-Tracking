@@ -263,7 +263,7 @@ try:
 
         all_videos = [
             f for f in os.listdir(input_dir)
-            if f.endswith(".mp4")
+            if f.endswith(".mp4") or f.endswith(".MP4")
         ]
 
         new_videos = [v for v in all_videos if v not in processed]
