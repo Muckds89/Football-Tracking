@@ -1,9 +1,9 @@
-input_videos/*.mp4
-input_videos/*.jpg
-output_videos/*.mp4
-output_videos/*.jpg
+input_videos/*
+output_videos/*
 datasets/images
 datasets/labels
+!input_videos/.gitkeep
+!output_videos/.gitkeep
 
 # Images
 *.jpg
