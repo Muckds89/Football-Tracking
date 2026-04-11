@@ -1,62 +1,133 @@
-# Football Tracking using YOLOv8 and OpenCV
+# ⚽ Football Tracking & Highlight Generation
 
-This repository contains a football analysis system that leverages machine learning, computer vision, and deep learning techniques to analyze football matches. The system utilizes state-of-the-art object detection models, custom object detectors, pixel segmentation, optical flow, perspective transformation, and speed-distance measurement to provide comprehensive insights into player movements and match dynamics.
+End-to-end pipeline for detecting the ball, tracking players, identifying events, and generating highlight videos from football matches.
 
-## Features
+---
 
-1. **Object Detection with YOLOv8**: Utilizes Ultralytics and YOLOv8 to detect players, referees, and footballs in images and videos.
+## 🚀 Features
 
-2. **Custom Object Detection**: Fine-tunes and trains a custom YOLO model on a dataset tailored specifically for football analysis, enhancing object detection accuracy.
+* 🎯 Ball detection using YOLO
+* 🧠 Player tracking and interpolation
+* 🟦 Team assignment based on proximity
+* ⚡ Event detection (kickoff, passes, etc.)
+* 🎬 Automatic highlight generation
+* 📦 Optional highlight concatenation
 
-3. **Pixel Segmentation with KMeans**: Employs KMeans clustering to segment players from the background based on the colors of their t-shirts, providing accurate player identification.
+---
 
-4. **Optical Flow for Camera Movement**: Implements optical flow techniques to measure camera movement between frames, ensuring precise analysis of player movements.
+## 📂 Project Structure
 
-5. **Perspective Transformation**: Utilizes OpenCV's perspective transformation to represent the scene's depth and perspective, enabling measurements of player movement in meters rather than pixels.
+```
+football_tracking/        # Core pipeline logic
+notebooks/                # Colab notebooks
+scripts/                  # Local execution scripts
 
-6. **Speed and Distance Measurement**: Calculates players' speed and distance covered in the image, offering valuable insights into player performance.
+input_videos/             # (empty) place your videos here
+output_videos/            # Generated outputs
+models/                   # Trained models
+datasets/                 # Training datasets
+rois/                     # Region of Interest configs
+```
 
-## Getting Started
+---
 
-To get started with using the football analysis system, follow these steps:
+## ⚙️ Setup
 
-1. Clone this repository to your local machine:
+```bash
+git clone <your-repo-url>
+cd Football-Tracking
 
-    ```bash
-    git clone https://github.com/AnshChoudhary/Football-Tracking.git
-    ```
+pip install -r requirements.txt
+```
 
-2. Install the required dependencies:
+---
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+## ▶️ Usage
 
-3. Run the provided scripts or integrate the system into your own project as needed.
+### 1. Add videos
 
-## Usage
+Place your `.mp4` files into:
 
-The system provides various scripts and modules for different tasks:
+```
+input_videos/
+```
 
-- `yolo_inference.py`: Perform object detection using YOLOv8.
-- `football_training_yolo_v5.ipynb`: Fine-tune and train a custom YOLO model.
-- `team_assigner.py`: Segment players from the background using KMeans.
-- `camera_movement_estimator.py`: Measure camera movement using optical flow.
-- `view_transformer.py`: Apply perspective transformation to represent scene depth.
-- `speed_and_distance_estimator.py`: Calculate player speed and distance covered.
+---
 
-You can use these scripts individually or combine them to achieve specific analysis tasks.
+### 2. Run pipeline
 
-## Contribution
+```bash
+python scripts/run_local.py
+```
 
-Contributions to this project are welcome! If you have any ideas for improvements or new features, feel free to open an issue or submit a pull request.
+Outputs will appear in:
 
-## License
+```
+output_videos/
+```
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+---
 
-## Acknowledgments
+### 3. (Optional) Concatenate highlights
 
-- Ultralytics for providing the YOLOv8 implementation.
-- OpenCV for the powerful computer vision functionalities.
-- Contributors to various libraries and frameworks used in this project.
+Use the notebook:
+
+```
+notebooks/03_concatenate_highlights.ipynb
+```
+
+---
+
+## 🧠 Model Training (optional)
+
+Training is done separately using:
+
+```
+notebooks/01_ball_model_training.ipynb
+```
+
+You only need to retrain if improving detection performance.
+
+---
+
+## 📊 Pipeline Overview
+
+1. Ball detection
+2. Player tracking
+3. Ball interpolation
+4. Team possession inference
+5. Event detection
+6. Highlight generation
+
+---
+
+## ⚠️ Notes
+
+* Large files (videos, datasets, models) are **not tracked in Git**
+* Use local folders or cloud storage for assets
+* Ensure ROI files exist before running the pipeline
+
+---
+
+## 🛠️ Tech Stack
+
+* Python
+* OpenCV
+* YOLO (Ultralytics)
+* NumPy / Pandas
+* FFmpeg
+
+---
+
+## 📌 Future Improvements
+
+* Real-time processing
+* Improved team classification
+* Advanced event detection (goals, fouls)
+* Web interface / dashboard
+
+---
+
+## 👤 Author
+
+Marco De Stavola

@@ -4,6 +4,9 @@ datasets/images
 datasets/labels
 !input_videos/.gitkeep
 !output_videos/.gitkeep
+!datasets/images/.gitkeep
+!datasets/labels/.gitkeep
+!datasets/.gitkeep
 
 # Images
 *.jpg
