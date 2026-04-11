@@ -73,7 +73,7 @@ output_videos/
 Use the notebook:
 
 ```
-notebooks/03_concatenate_highlights.ipynb
+notebooks/utils/03_concatenate_highlights.ipynb
 ```
 
 ---
@@ -83,7 +83,7 @@ notebooks/03_concatenate_highlights.ipynb
 Training is done separately using:
 
 ```
-notebooks/01_ball_model_training.ipynb
+notebooks/training/01_ball_model_training.ipynb
 ```
 
 You only need to retrain if improving detection performance.
