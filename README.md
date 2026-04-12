@@ -54,6 +54,20 @@ input_videos/
 
 ---
 
+## 🎥 Demo — Ball Tracking & Player Association
+
+This demo shows the pipeline in action:
+
+* ⚽ Ball detection with interpolation when missing
+* 🧍 Player tracking across frames
+* 🔗 Association between ball and closest player
+* 🎯 Foundation for event detection and highlight generation
+
+👉 **Watch the full demo video:**
+https://youtu.be/78WEZ-UguGs
+
+---
+
 ### 2. Run pipeline
 
 ```bash
@@ -127,6 +141,7 @@ You only need to retrain if improving detection performance.
 * Web interface / dashboard
 
 ---
+
 
 ## 👤 Author
 
