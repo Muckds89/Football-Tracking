@@ -66,6 +66,7 @@ This demo shows the pipeline in action:
 👉 **Watch the full demo video:**
 https://youtu.be/78WEZ-UguGs
 
+[![Watch Demo](docs/demo.gif)](https://youtube.com/watch?v=78WEZ-UguGs)
 ---
 
 ### 2. Run pipeline
