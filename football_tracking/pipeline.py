@@ -106,19 +106,7 @@ try:
         logging.info("Assigned teams to player tracks")
         tracks = TeamAssigner().smooth_player_teams(tracks)    
         logging.info("Smoothed player team assignments")
-        # if False:
-        # debug video with tracks and teams
-        debug_output_path = os.path.join(
-            config.output_dir,
-            "debugs",
-            f"{video_stem}_players_debug.mp4"
-        )
-        VideoUtils.write_player_team_debug_video(
-            video_path=video_path,
-            tracks=tracks,
-            output_path=debug_output_path,
-            fps=fps
-        )
+
         logging.info(f"Step 3 Player tracking and team assignment done in {time.time() - start_time:.1f}s")
 
         # 5. Ball tracking
@@ -139,14 +127,17 @@ try:
         debug_output_path = os.path.join(
             config.output_dir,
             "debugs",
-            f"{video_stem}_ball_interpolation_debug.mp4"
+            f"{video_stem}_ball_interpolation_and_players_debug.mp4"
         )
-        VideoUtils.write_ball_debug_video(
+        VideoUtils.write_player_team_debug_video(
             video_path=video_path,
-            tracks=ball_tracks_filled,
+            tracks=tracks,
             output_path=debug_output_path,
-            fps=fps
+            fps=fps,
+            ball_tracks=ball_tracks_filled
         )
+
+
         logging.info(f"Step 4 Interpolation done in {time.time() - start_time:.1f}s")
         sys.exit(1)
 
