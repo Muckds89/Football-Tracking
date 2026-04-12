@@ -141,7 +141,7 @@ try:
             "debugs",
             f"{video_stem}_ball_interpolation_debug.mp4"
         )
-        VideoUtils.write_player_team_debug_video(
+        VideoUtils.write_ball_debug_video(
             video_path=video_path,
             tracks=ball_tracks_filled,
             output_path=debug_output_path,
