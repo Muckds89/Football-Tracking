@@ -4,6 +4,9 @@ datasets/images
 datasets/labels
 !input_videos/.gitkeep
 !output_videos/.gitkeep
+!output_videos/debugs/.gitkeep
+!output_videos/combined/.gitkeep
+!output_videos/events/.gitkeep
 !datasets/images/.gitkeep
 !datasets/labels/.gitkeep
 !datasets/.gitkeep

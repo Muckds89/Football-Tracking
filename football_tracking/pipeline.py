@@ -124,22 +124,22 @@ try:
         ball_tracks_filled = interpolator.interpolate_ball_tracks(ball_tracks)
         # if False:
         # debug video with tracks and teams
-        debug_output_path = os.path.join(
-            config.output_dir,
-            "debugs",
-            f"{video_stem}_ball_interpolation_and_players_debug.mp4"
-        )
-        VideoUtils.write_player_team_debug_video(
-            video_path=video_path,
-            tracks=tracks,
-            output_path=debug_output_path,
-            fps=fps,
-            ball_tracks=ball_tracks_filled
-        )
+        if False:
+            debug_output_path = os.path.join(
+                config.output_dir,
+                "debugs",
+                f"{video_stem}_ball_interpolation_and_players_debug.mp4"
+            )
+            VideoUtils.write_player_team_debug_video(
+                video_path=video_path,
+                tracks=tracks,
+                output_path=debug_output_path,
+                fps=fps,
+                ball_tracks=ball_tracks_filled
+            )
 
 
         logging.info(f"Step 4 Interpolation done in {time.time() - start_time:.1f}s")
-        sys.exit(1)
 
 
         # 7. Infer team in ball control
