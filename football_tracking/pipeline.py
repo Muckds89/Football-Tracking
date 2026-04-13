@@ -37,6 +37,8 @@ logging.basicConfig(
     ]
 )
 
+
+
 try:
 
 
@@ -45,6 +47,18 @@ try:
 
         video_name = os.path.basename(video_path)
         video_stem = video_name.rsplit(".", 1)[0]
+
+
+        # checkpoints 
+        cache_dir = os.path.join(config.output_dir, "cache")
+        os.makedirs(cache_dir, exist_ok=True)
+
+        tracks_path = os.path.join(cache_dir, f"{video_stem}_tracks.pkl")
+        team_tracks_path = os.path.join(cache_dir, f"{video_stem}_team_tracks.pkl")
+        ball_tracks_path = os.path.join(cache_dir, f"{video_stem}_ball_tracks.pkl")
+        ball_interp_path = os.path.join(cache_dir, f"{video_stem}_ball_interp.pkl")
+        raw_events_path = os.path.join(cache_dir, f"{video_stem}_raw_events.json")
+        windows_path = os.path.join(cache_dir, f"{video_stem}_highlight_windows.json")
 
         # 1. Load frames
         start_time = time.time()
@@ -93,12 +107,17 @@ try:
         os.makedirs(config.stubs_dir, exist_ok=True)
         stub_path = os.path.join(config.stubs_dir, "track_stub_debug.pkl")
 
-        tracks = tracker.get_player_tracks_from_video(
-            video_path=video_path,
-            read_from_stub=False,
-            stub_path=stub_path,
-            batch_size=16
-        )
+        if os.path.exists(tracks_path):
+            tracks = IOUtils.load_pickle(tracks_path)
+            logging.info("Loaded cached tracks")
+        else:
+            tracks = tracker.get_player_tracks_from_video(
+                video_path=video_path,
+                read_from_stub=False,
+                stub_path=stub_path,
+                batch_size=16
+            )
+            IOUtils.save_pickle(tracks, tracks_path)
 
         # 4. Assign Teams to Players
         start_time = time.time()
@@ -112,7 +131,12 @@ try:
         # 5. Ball tracking
         start_time = time.time()
         ball_tracker = BallTracker(config.model_path)
-        ball_tracks = ball_tracker.get_ball_tracks(video_path)
+        if os.path.exists(tracks_path):
+            ball_tracks = IOUtils.load_pickle(ball_tracks_path)
+            logging.info("Loaded cached tracks")
+        else: 
+            ball_tracks = ball_tracker.get_ball_tracks(video_path)
+            IOUtils.save_pickle(ball_tracks, ball_tracks_path)
 
         detected = sum(1 for t in ball_tracks if t is not None)
         logging.info(f"Ball detected in {detected}/{len(ball_tracks)} frames")
@@ -121,7 +145,12 @@ try:
         # 6. Interpolation
         start_time = time.time()
         interpolator = Interpolator()
-        ball_tracks_filled = interpolator.interpolate_ball_tracks(ball_tracks)
+        if os.path.exists(tracks_path):
+            ball_tracks_filled = IOUtils.load_pickle(ball_interp_path)
+            logging.info("Loaded cached tracks")
+        else: 
+            ball_tracks_filled = interpolator.interpolate_ball_tracks(ball_tracks)
+            IOUtils.save_pickle(ball_tracks_filled, ball_interp_path)
         # if False:
         # debug video with tracks and teams
         if False:
@@ -227,12 +256,18 @@ try:
             "highlights",
             f"{video_name}_highlights.mp4"
         )
-
-        HIGHVideoUtils().save_highlights_to_video(
+        clips_dir = os.path.join(config.output_dir, "clips", video_stem)
+        HIGHVideoUtils().save_highlights_as_clips(
             video_path=video_path,
             highlight_windows=highlight_windows,
-            output_path=output_highlight_path,
-            fps=fps    )
+            output_dir=clips_dir,
+            fps=fps
+        )
+        HIGHVideoUtils().concat_clips_ffmpeg(
+        clips_dir,
+        output_highlight_path
+        )
+
         logging.info(f"Step 6 Export highlights done in {time.time() - start_time:.1f}s")
 
         # 7. Save events JSON

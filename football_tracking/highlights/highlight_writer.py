@@ -180,3 +180,81 @@ class HIGHVideoUtils:
         os.replace(temp_combined, output_path)
 
         logging.info(f"Appended highlights to existing video: {output_path}")
+
+    def save_highlights_as_clips(self, video_path, highlight_windows, output_dir, fps):
+        cap = cv2.VideoCapture(video_path)
+
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        for idx, win in enumerate(highlight_windows):
+            clip_path = os.path.join(output_dir, f"clip_{idx:04d}.mp4")
+
+            # ✅ skip if already done (resume support)
+            if os.path.exists(clip_path) and os.path.getsize(clip_path) > 1000:
+                logging.info(f"Skipping existing clip {idx}")
+                continue
+
+            writer = cv2.VideoWriter(
+                clip_path,
+                cv2.VideoWriter_fourcc(*"mp4v"),
+                fps,
+                (width, height)
+            )
+
+            start_frame = max(0, win["start_frame"])
+            end_frame = min(total_frames - 1, win["end_frame"])
+
+            cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+
+            current_frame = start_frame
+
+            while current_frame <= end_frame:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                cv2.putText(
+                    frame,
+                    f"{win['event']}",
+                    (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1.0,
+                    (0, 255, 255),
+                    2
+                )
+
+                writer.write(frame)
+                current_frame += 1
+
+            writer.release()
+            logging.info(f"Saved clip {idx}: {clip_path}")
+
+        cap.release()
+
+    @staticmethod
+    def concat_clips_ffmpeg(clips_dir, output_path):
+        import subprocess
+
+        clip_files = sorted([
+            f for f in os.listdir(clips_dir) if f.endswith(".mp4")
+        ])
+
+        list_file = os.path.join(clips_dir, "clips.txt")
+
+        with open(list_file, "w") as f:
+            for clip in clip_files:
+                f.write(f"file '{os.path.join(clips_dir, clip)}'\n")
+
+        cmd = [
+            "ffmpeg",
+            "-f", "concat",
+            "-safe", "0",
+            "-i", list_file,
+            "-c", "copy",
+            output_path
+        ]
+
+        subprocess.run(cmd, check=True)

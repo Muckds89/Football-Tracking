@@ -2,9 +2,25 @@ import os
 import json
 import logging
 
+import pickle
+
+
+
+
 
 class IOUtils:
 
+    @staticmethod
+    def save_pickle(obj, path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "wb") as f:
+            pickle.dump(obj, f)
+
+    @staticmethod
+    def load_pickle(path):
+        with open(path, "rb") as f:
+            return pickle.load(f)
+        
     @staticmethod
     def ensure_dir(path):
         os.makedirs(path, exist_ok=True)
