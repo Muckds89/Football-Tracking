@@ -133,7 +133,7 @@ class HIGHVideoUtils:
                 #     2
                 # )
 
-                # writer.write(frame_out)
+                writer.write(frame_out)
                 current_frame += 1
 
         writer.release()
