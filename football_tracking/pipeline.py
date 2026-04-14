@@ -101,6 +101,7 @@ try:
         logging.info(f"Step 2 ROI handling done in {time.time() - start_time:.1f}s")
 
         # 3. Players Tracking
+        start_time = time.time()
         tracker = Tracker("yolov8n.pt")
         logging.info("Initialized YOLOv8n tracker")
         #make folder for stubs if not exists
@@ -119,6 +120,8 @@ try:
             )
             IOUtils.save_pickle(tracks, tracks_path)
 
+        logging.info(f"Step 3 Player tracking done in {time.time() - start_time:.1f}s")
+
         # 4. Assign Teams to Players
         start_time = time.time()
         tracks = TeamAssigner().assign_player_teams_from_video(video_path, tracks)
@@ -126,7 +129,7 @@ try:
         tracks = TeamAssigner().smooth_player_teams(tracks)    
         logging.info("Smoothed player team assignments")
 
-        logging.info(f"Step 3 Player tracking and team assignment done in {time.time() - start_time:.1f}s")
+        logging.info(f"Step 4 Player team assignment done in {time.time() - start_time:.1f}s")
 
         # 5. Ball tracking
         start_time = time.time()
@@ -140,7 +143,7 @@ try:
 
         detected = sum(1 for t in ball_tracks if t is not None)
         logging.info(f"Ball detected in {detected}/{len(ball_tracks)} frames")
-        logging.info(f"Step 3 Ball tracking done in {time.time() - start_time:.1f}s")
+        logging.info(f"Step 5 Ball tracking done in {time.time() - start_time:.1f}s")
 
         # 6. Interpolation
         start_time = time.time()
@@ -168,12 +171,14 @@ try:
             )
 
 
-        logging.info(f"Step 4 Interpolation done in {time.time() - start_time:.1f}s")
+        logging.info(f"Step 6 Interpolation done in {time.time() - start_time:.1f}s")
 
 
         # 7. Infer team in ball control
+        start_time = time.time()
         team_ball_control = PlayerBallAssigner().infer_team_ball_control(tracks, ball_tracks_filled)
         team_ball_control = PlayerBallAssigner().smooth_team_control(team_ball_control)
+        logging.info(f"Step 7 Infer team ball control done in {time.time() - start_time:.1f}s")
 
 
         # 8. Event detection
@@ -231,7 +236,7 @@ try:
             )
         )
         logging.info(f"Detected {len(raw_events)} raw events")
-        logging.info(f"Step 5 Event detection done in {time.time() - start_time:.1f}s")
+        logging.info(f"Step 8 Event detection done in {time.time() - start_time:.1f}s")
 
         # if kickoff used, shift raw event frames back to original video frames
         for ev in raw_events:
@@ -249,7 +254,7 @@ try:
         if kickoff_event is not None:
             highlight_windows = [kickoff_event] + highlight_windows
         
-        # 6. Export highlights
+        # 9. Export highlights
         start_time = time.time()
         output_highlight_path = os.path.join(
             config.output_dir,
@@ -268,9 +273,9 @@ try:
         output_highlight_path
         )
 
-        logging.info(f"Step 6 Export highlights done in {time.time() - start_time:.1f}s")
+        logging.info(f"Step 9 Export highlights done in {time.time() - start_time:.1f}s")
 
-        # 7. Save events JSON
+        # 10. Save events JSON
         start_time = time.time()
         event_json_path = os.path.join(
             config.output_dir,
@@ -281,7 +286,7 @@ try:
         IOUtils.save_json(raw_events, event_json_path)
 
         logging.info(f"Finished processing {video_name}")
-        logging.info(f"Step 7 Save events JSON done in {time.time() - start_time:.1f}s")
+        logging.info(f"Step 10 Save events JSON done in {time.time() - start_time:.1f}s")
         return {
             "video": video_name,
             "frames": total_frames,
