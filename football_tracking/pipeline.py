@@ -131,7 +131,7 @@ try:
         # 5. Ball tracking
         start_time = time.time()
         ball_tracker = BallTracker(config.model_path)
-        if os.path.exists(tracks_path):
+        if os.path.exists(ball_tracks_path):
             ball_tracks = IOUtils.load_pickle(ball_tracks_path)
             logging.info("Loaded cached tracks")
         else: 
@@ -145,7 +145,7 @@ try:
         # 6. Interpolation
         start_time = time.time()
         interpolator = Interpolator()
-        if os.path.exists(tracks_path):
+        if os.path.exists(ball_interp_path):
             ball_tracks_filled = IOUtils.load_pickle(ball_interp_path)
             logging.info("Loaded cached tracks")
         else: 
