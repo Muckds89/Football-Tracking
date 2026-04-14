@@ -25,6 +25,10 @@ from football_tracking.player_ball_assigner.player_ball_assigner import PlayerBa
 import traceback
 import time
 
+import shutil
+
+
+
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
 
@@ -124,10 +128,15 @@ try:
 
         # 4. Assign Teams to Players
         start_time = time.time()
-        tracks = TeamAssigner().assign_player_teams_from_video(video_path, tracks)
-        logging.info("Assigned teams to player tracks")
-        tracks = TeamAssigner().smooth_player_teams(tracks)    
-        logging.info("Smoothed player team assignments")
+        if os.path.exists(team_tracks_path):
+            tracks = IOUtils.load_pickle(team_tracks_path)
+            logging.info("Loaded cached tracks")
+        else:   
+            tracks = TeamAssigner().assign_player_teams_from_video(video_path, tracks)
+            logging.info("Assigned teams to player tracks")
+            tracks = TeamAssigner().smooth_player_teams(tracks)    
+            logging.info("Smoothed player team assignments")
+            IOUtils.save_pickle(tracks, team_tracks_path)
 
         logging.info(f"Step 4 Player team assignment done in {time.time() - start_time:.1f}s")
 
@@ -261,12 +270,20 @@ try:
             "highlights",
             f"{video_name}_highlights.mp4"
         )
+
+
         clips_dir = os.path.join(config.output_dir, "clips", video_stem)
-        HIGHVideoUtils().save_highlights_as_clips(
+
+        if os.path.exists(clips_dir):
+            shutil.rmtree(clips_dir)
+
+        os.makedirs(clips_dir, exist_ok=True)
+        HIGHVideoUtils().save_highlights_as_clips_parallel(
             video_path=video_path,
             highlight_windows=highlight_windows,
             output_dir=clips_dir,
-            fps=fps
+            fps=fps,
+            workers=4
         )
         HIGHVideoUtils().concat_clips_ffmpeg(
         clips_dir,

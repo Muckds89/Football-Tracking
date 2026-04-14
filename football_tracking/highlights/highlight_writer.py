@@ -2,6 +2,10 @@ import os
 import cv2
 import logging
 from football_tracking.io_utils import IOUtils
+from multiprocessing import Pool
+import os
+import subprocess
+
     
 class HIGHVideoUtils:
     def __init__(self):
@@ -234,27 +238,93 @@ class HIGHVideoUtils:
 
         cap.release()
 
-    @staticmethod
-    def concat_clips_ffmpeg(clips_dir, output_path):
-        import subprocess
 
-        clip_files = sorted([
-            f for f in os.listdir(clips_dir) if f.endswith(".mp4")
-        ])
+
+    
+    def write_single_clip(self,args):
+        video_path, win, clip_path, fps = args
+
+        if os.path.exists(clip_path) and os.path.getsize(clip_path) > 1000:
+            return f"skip {clip_path}"
+
+        cap = cv2.VideoCapture(video_path)
+        if not cap.isOpened():
+            return f"error opening video for {clip_path}"
+
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        writer = cv2.VideoWriter(
+            clip_path,
+            cv2.VideoWriter_fourcc(*"mp4v"),
+            fps,
+            (width, height)
+        )
+
+        if not writer.isOpened():
+            cap.release()
+            return f"error opening writer for {clip_path}"
+
+        start_frame = max(0, win["start_frame"])
+        end_frame = min(total_frames - 1, win["end_frame"])
+
+        cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        current_frame = start_frame
+
+        while current_frame <= end_frame:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            cv2.putText(
+                    frame,
+                    f"{win['event']}",
+                    (20, 40),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1.0,
+                    (0, 255, 255),
+                    2
+                )
+            writer.write(frame)
+            current_frame += 1
+
+        writer.release()
+        cap.release()
+        return f"done {clip_path}"
+    
+
+
+    def save_highlights_as_clips_parallel(self,video_path, highlight_windows, clips_dir, fps, workers=4):
+        os.makedirs(clips_dir, exist_ok=True)
+
+        jobs = []
+        for idx, win in enumerate(highlight_windows):
+            clip_path = os.path.join(clips_dir, f"clip_{idx:04d}.mp4")
+            jobs.append((video_path, win, clip_path, fps))
+
+        with Pool(processes=workers) as pool:
+            for result in pool.imap_unordered(self.write_single_clip, jobs):
+                print(result)
+
+    @staticmethod
+    def concat_clips_ffmpeg( clips_dir, output_path):
+        clip_files = sorted(
+            f for f in os.listdir(clips_dir)
+            if f.endswith(".mp4") and f.startswith("clip_")
+        )
 
         list_file = os.path.join(clips_dir, "clips.txt")
-
-        with open(list_file, "w") as f:
+        with open(list_file, "w", encoding="utf-8") as f:
             for clip in clip_files:
                 f.write(f"file '{os.path.join(clips_dir, clip)}'\n")
 
         cmd = [
             "ffmpeg",
+            "-y",
             "-f", "concat",
             "-safe", "0",
             "-i", list_file,
             "-c", "copy",
             output_path
         ]
-
         subprocess.run(cmd, check=True)
