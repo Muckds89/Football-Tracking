@@ -281,7 +281,7 @@ try:
         HIGHVideoUtils().save_highlights_as_clips_parallel(
             video_path=video_path,
             highlight_windows=highlight_windows,
-            output_dir=clips_dir,
+            clips_dir=clips_dir,
             fps=fps,
             workers=4
         )
