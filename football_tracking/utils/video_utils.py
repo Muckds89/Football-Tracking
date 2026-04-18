@@ -48,7 +48,7 @@ class VideoUtils:
             cap.release()
             raise ValueError(f"No frames in video: {video_path}")
 
-        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_count - 1)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_count - 100)
         ret, frame = cap.read()
         cap.release()
 
