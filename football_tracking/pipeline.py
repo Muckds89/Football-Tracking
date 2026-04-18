@@ -255,52 +255,73 @@ try:
             ev["start_time_sec"] = ev["start_frame"] / fps
             ev["end_time_sec"] = ev["end_frame"] / fps
 
-        highlight_windows = event_detector.build_highlight_windows(
+        goal_touched_events = [
+            ev for ev in raw_events
+            if ev.get("goal_touched") is True
+        ]
+
+        logging.info(f"Detected {len(goal_touched_events)} goal-touched raw events")    
+
+        highlight_windows_full = event_detector.build_highlight_windows(
             raw_events,
             fps=fps,
             seconds_before=15,
             seconds_after=5
         )
+
+        highlight_windows_goal_touched = event_detector.build_highlight_windows(
+            goal_touched_events,
+            fps=fps,
+            seconds_before=8,
+            seconds_after=4
+        )
+
         if kickoff_event is not None:
-            highlight_windows = [kickoff_event] + highlight_windows
+            highlight_windows_full = [kickoff_event] + highlight_windows_full
 
 
 
         # 9. Export highlights
         start_time = time.time()
-        output_highlight_path = os.path.join(
+        output_highlight_path_full = os.path.join(
             config.output_dir,
             "highlights",
-            f"{video_name}_highlights.mp4"
+            f"{video_name}_highlights_full.mp4"
         )
 
 
-        clips_dir = os.path.join(config.output_dir, "clips", video_stem)
+        clips_dir_full = os.path.join(config.output_dir, "clips", f"{video_stem}_full")
+        clips_dir_goal_touched = os.path.join(config.output_dir, "clips", f"{video_stem}_goal_touched")
 
-        if os.path.exists(clips_dir):
-            shutil.rmtree(clips_dir)
+        if os.path.exists(clips_dir_full):
+            shutil.rmtree(clips_dir_full)
+        if os.path.exists(clips_dir_goal_touched):
+            shutil.rmtree(clips_dir_goal_touched)
+
+        os.makedirs(clips_dir_full, exist_ok=True)
+        os.makedirs(clips_dir_goal_touched, exist_ok=True)
+
         highlight_windows_json_path = os.path.join(
             config.output_dir,
             "highlights",
             f"{video_name}_highlight_windows.json"
         )
 
-        IOUtils.save_json(highlight_windows, highlight_windows_json_path)
+        IOUtils.save_json(highlight_windows_full, highlight_windows_json_path)
         logging.info(f"Saved highlight windows JSON to {highlight_windows_json_path}")
 
-        os.makedirs(clips_dir, exist_ok=True)
         HIGHVideoUtils().save_highlights_as_clips_parallel(
             video_path=video_path,
-            highlight_windows=highlight_windows,
-            clips_dir=clips_dir,
+            highlight_windows=highlight_windows_full,
+            clips_dir=clips_dir_full,
             fps=fps,
             workers=4
         )
         HIGHVideoUtils().concat_clips_ffmpeg(
-        clips_dir,
-        output_highlight_path
+        clips_dir_full,
+        output_highlight_path_full
         )
-        logging.info(f"Saved highlights video to {output_highlight_path}")
+        logging.info(f"Saved highlights video to {output_highlight_path_full}")
         
         # 11. Shorter highlight windows for goal-touched events
 
@@ -310,23 +331,38 @@ try:
             "highlights",
             f"{video_name}_highlights_shorter.mp4"
         )
-        HIGHVideoUtils().concat_goal_touched_from_windows(
-            highlight_windows_json_path,
-            clips_dir,
+        HIGHVideoUtils().save_highlights_as_clips_parallel(
+            video_path=video_path,
+            highlight_windows=highlight_windows_goal_touched,
+            clips_dir=clips_dir_goal_touched,
+            fps=fps,
+            workers=4
+        )
+        HIGHVideoUtils().concat_clips_ffmpeg(
+            clips_dir_goal_touched,
             output_highlight_shorter_path
         )
 
 
         # 12. Save events JSON
         start_time = time.time()
-        event_json_path = os.path.join(
+        highlight_windows_full_json_path = os.path.join(
             config.output_dir,
-            "events",
-            f"{video_name}_events.json"
+            "highlights",
+            f"{video_stem}_highlight_windows_full.json"
         )
 
-        IOUtils.save_json(raw_events, event_json_path)
-        logging.info(f"Saved events JSON to {event_json_path}")
+        highlight_windows_goal_touched_json_path = os.path.join(
+            config.output_dir,
+            "highlights",
+            f"{video_stem}_highlight_windows_goal_touched.json"
+        )
+
+        IOUtils.save_json(highlight_windows_full, highlight_windows_full_json_path)
+        IOUtils.save_json(highlight_windows_goal_touched, highlight_windows_goal_touched_json_path)
+
+        logging.info(f"Saved full highlight windows JSON to {highlight_windows_full_json_path}")
+        logging.info(f"Saved goal-touched highlight windows JSON to {highlight_windows_goal_touched_json_path}")
 
 
         logging.info(f"Finished processing {video_name}")
