@@ -287,3 +287,12 @@
 2026-04-18 17:09:28,552 [INFO] Step 1 Load Frames done in 2.7s
 2026-04-18 17:09:28,590 [INFO] Step 2 ROI handling done in 0.0s
 2026-04-18 17:09:28,747 [INFO] Initialized YOLOv8n tracker
+2026-04-18 17:14:30,459 [INFO] Found 2 new videos
+2026-04-18 17:14:30,460 [INFO] Processing video: C:\Users\marco\Projects\Football-Tracking\input_videos\DJI_20260417190914_0014.mp4
+2026-04-18 17:14:30,793 [INFO] Video metadata: {'fps': 30.0, 'frame_count': 7754, 'width': 1920, 'height': 1080}
+2026-04-18 17:14:31,248 [INFO] Step 1 Load Frames done in 0.8s
+2026-04-18 17:14:31,283 [INFO] Saved frame to C:\Users\marco\Projects\Football-Tracking\output_videos\reference_frames\DJI_20260417190914_0014_last_frame.jpg
+2026-04-18 17:14:42,464 [INFO] Saved JSON: C:\Users\marco\Projects\Football-Tracking\rois\DJI_20260417190914_0014_rois.json
+2026-04-18 17:14:42,473 [INFO] Created ROIs for DJI_20260417190914_0014.mp4
+2026-04-18 17:14:42,476 [INFO] Step 2 ROI handling done in 11.2s
+2026-04-18 17:14:42,639 [INFO] Initialized YOLOv8n tracker
