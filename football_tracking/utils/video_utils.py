@@ -6,6 +6,7 @@ import numpy as np
 
 
 
+
 class VideoUtils:
     @staticmethod
     def read_video_stream(video_path):
@@ -487,3 +488,5 @@ class VideoUtils:
             writer.release()
 
         logging.info(f"Saved debug video: {output_path}")
+
+

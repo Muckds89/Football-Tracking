@@ -214,6 +214,7 @@ try:
                 "end_frame": min(total_frames - 1, start_frame_for_events + int(8 * fps)),
                 "start_time_sec": max(0, start_frame_for_events - int(5 * fps)) / fps,
                 "end_time_sec": min(total_frames - 1, start_frame_for_events + int(8 * fps)) / fps,
+                "goal_touched": False,
             }
             logging.info(f"Kickoff detected at frame {start_frame_for_events}")
 
@@ -262,7 +263,9 @@ try:
         )
         if kickoff_event is not None:
             highlight_windows = [kickoff_event] + highlight_windows
-        
+
+
+
         # 9. Export highlights
         start_time = time.time()
         output_highlight_path = os.path.join(
@@ -276,6 +279,14 @@ try:
 
         if os.path.exists(clips_dir):
             shutil.rmtree(clips_dir)
+        highlight_windows_json_path = os.path.join(
+            config.output_dir,
+            "highlights",
+            f"{video_name}_highlight_windows.json"
+        )
+
+        IOUtils.save_json(highlight_windows, highlight_windows_json_path)
+        logging.info(f"Saved highlight windows JSON to {highlight_windows_json_path}")
 
         os.makedirs(clips_dir, exist_ok=True)
         HIGHVideoUtils().save_highlights_as_clips_parallel(
@@ -289,10 +300,24 @@ try:
         clips_dir,
         output_highlight_path
         )
+        logging.info(f"Saved highlights video to {output_highlight_path}")
+        
+        # 11. Shorter highlight windows for goal-touched events
 
         logging.info(f"Step 9 Export highlights done in {time.time() - start_time:.1f}s")
+        output_highlight_shorter_path = os.path.join(
+            config.output_dir,
+            "highlights",
+            f"{video_name}_highlights_shorter.mp4"
+        )
+        HIGHVideoUtils().concat_goal_touched_from_windows(
+            highlight_windows_json_path,
+            clips_dir,
+            output_highlight_shorter_path
+        )
 
-        # 10. Save events JSON
+
+        # 12. Save events JSON
         start_time = time.time()
         event_json_path = os.path.join(
             config.output_dir,
@@ -301,6 +326,8 @@ try:
         )
 
         IOUtils.save_json(raw_events, event_json_path)
+        logging.info(f"Saved events JSON to {event_json_path}")
+
 
         logging.info(f"Finished processing {video_name}")
         logging.info(f"Step 10 Save events JSON done in {time.time() - start_time:.1f}s")
@@ -310,6 +337,9 @@ try:
             "detections": detected,
             "events": len(raw_events)
         }
+
+
+
 
 
     def process_new_videos(config):

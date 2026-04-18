@@ -5,7 +5,9 @@ from football_tracking.io_utils import IOUtils
 from multiprocessing import Pool
 import os
 import subprocess
-
+import json
+from pathlib import Path
+import logging
     
 class HIGHVideoUtils:
     def __init__(self):
@@ -328,3 +330,89 @@ class HIGHVideoUtils:
             output_path
         ]
         subprocess.run(cmd, check=True)
+
+    
+    @staticmethod
+    def concat_goal_touched_from_windows(highlight_windows_json, clips_dir, output_path, ffmpeg="ffmpeg"):
+        highlight_windows_json = Path(highlight_windows_json)
+        clips_dir = Path(clips_dir)
+        output_path = Path(output_path)
+
+        with open(highlight_windows_json, "r", encoding="utf-8") as f:
+            highlight_windows = json.load(f)
+
+        # Clips sorted by filename order
+        clip_files = sorted([p for p in clips_dir.glob("*.mp4") if p.is_file()])
+
+        print(f"Highlight windows: {len(highlight_windows)}")
+        print(f"Clips found: {len(clip_files)}")
+
+        if len(clip_files) < len(highlight_windows):
+            print("Warning: fewer clips than highlight windows")
+        elif len(clip_files) > len(highlight_windows):
+            print("Warning: more clips than highlight windows")
+
+        selected_clips = []
+        selected_rows = []
+
+        for idx, win in enumerate(highlight_windows):
+            if idx >= len(clip_files):
+                print(f"Missing clip for window index {idx}")
+                continue
+
+            if win.get("goal_touched", False):
+                selected_clips.append(clip_files[idx])
+                selected_rows.append({
+                    "window_index": idx,
+                    "clip_name": clip_files[idx].name,
+                    "event": win.get("event"),
+                    "start_frame": win.get("start_frame"),
+                    "end_frame": win.get("end_frame"),
+                    "trigger_frame": win.get("trigger_frame"),
+                    "side": win.get("side"),
+                    "goal_touched": win.get("goal_touched"),
+                })
+
+        print(f"Selected goal-touched clips: {len(selected_clips)}")
+
+        if not selected_clips:
+            raise RuntimeError("No goal-touched clips selected")
+
+        audit_path = clips_dir / "goal_touched_selected_from_windows.json"
+        with open(audit_path, "w", encoding="utf-8") as f:
+            json.dump(selected_rows, f, indent=2)
+
+        concat_file = clips_dir / "concat_goal_touched.txt"
+        with open(concat_file, "w", encoding="utf-8") as f:
+            for clip in selected_clips:
+                f.write(f"file '{clip.resolve().as_posix()}'\n")
+
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        cmd = [
+            ffmpeg,
+            "-y",
+            "-f", "concat",
+            "-safe", "0",
+            "-i", str(concat_file),
+            "-c:v", "libx264",
+            "-preset", "veryfast",
+            "-crf", "20",
+            "-an",
+            "-movflags", "+faststart",
+            str(output_path)
+        ]
+
+        print("Running:", " ".join(cmd))
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        print("\nFFMPEG STDERR:\n", result.stderr)
+
+        if result.returncode != 0:
+            raise RuntimeError(f"ffmpeg failed with code {result.returncode}")
+
+        if not output_path.exists() or output_path.stat().st_size == 0:
+            raise RuntimeError("Output file missing or empty")
+
+        print(f"Saved output to: {output_path}")
+        print(f"Saved audit to: {audit_path}")
