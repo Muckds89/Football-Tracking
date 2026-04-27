@@ -1,0 +1,7 @@
+2026-04-27 08:57:49,580 [INFO] Drawing ROI on: ../../new_video_frames/April_26/Images\April26_1__01499.jpg
+2026-04-27 08:58:23,645 [INFO] Saved ROI to ../../roi/April_26_mask_roi.json
+2026-04-27 08:58:23,657 [INFO] Cropping 1500 images
+2026-04-27 08:59:00,685 [INFO] Processed 500/1500
+2026-04-27 08:59:36,935 [INFO] Processed 1000/1500
+2026-04-27 09:00:14,282 [INFO] Processed 1500/1500
+2026-04-27 09:00:14,283 [INFO] Done in 144.7s

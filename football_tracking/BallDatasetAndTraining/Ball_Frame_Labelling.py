@@ -221,4 +221,4 @@ def label_images(images_dir="dataset/images", labels_dir="dataset/labels"):
 
 
 if __name__ == "__main__":
-    label_images("../../new_video_frames/March29_3/Images", "../../new_video_frames/March29_3/labels")
+    label_images("../../new_video_frames/April_26_roi/Images", "../../new_video_frames/April_26_roi/labels")

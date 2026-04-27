@@ -16,6 +16,7 @@ from football_tracking.highlights.highlight_writer import HIGHVideoUtils
 from football_tracking.roi.roi_manager import ROIManager
 from football_tracking.roi.roi_drawer_colab import annotate_rois_colab
 from football_tracking.roi.roi_drawer_local import ROIUtils
+from football_tracking.roi.roi_cropper import ROICropper
 from football_tracking.tracking.tracker import Tracker
 from football_tracking.team_assigner.team_assigner import TeamAssigner
 from football_tracking.player_ball_assigner.player_ball_assigner import PlayerBallAssigner
@@ -93,6 +94,7 @@ try:
                     "right_penalty_box",
                     "left_goal",
                     "right_goal",
+                    "ball_crop_roi",   # pitch + goals polygon used for ball model
                 ]
                 rois = ROIUtils(ROI_NAMES).annotate_rois_local(reference_frame_path)
             elif config.environment == "colab":
@@ -102,6 +104,7 @@ try:
 
             roi_manager.save_rois(video_name, rois)
             logging.info(f"Created ROIs for {video_name}")
+        ball_roi_polygon = ROICropper.normalize_polygon(rois, "ball_crop_roi")
         logging.info(f"Step 2 ROI handling done in {time.time() - start_time:.1f}s")
 
         # 3. Players Tracking
@@ -147,7 +150,12 @@ try:
             ball_tracks = IOUtils.load_pickle(ball_tracks_path)
             logging.info("Loaded cached tracks")
         else: 
-            ball_tracks = ball_tracker.get_ball_tracks(video_path)
+            ball_tracks = ball_tracker.get_ball_tracks(
+                video_path=video_path,
+                ball_roi_polygon=ball_roi_polygon,
+                apply_mask=True,
+                frame_skip=2
+            )
             IOUtils.save_pickle(ball_tracks, ball_tracks_path)
 
         detected = sum(1 for t in ball_tracks if t is not None)
@@ -422,4 +430,5 @@ try:
 
 except Exception as e:
     logging.error(f"Failed processing:  {e}")
-    traceback.print_exc()
+    traceback.print_exc()#
+
