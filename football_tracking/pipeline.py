@@ -171,9 +171,9 @@ try:
         else: 
             ball_tracks_filled = interpolator.interpolate_ball_tracks(ball_tracks)
             IOUtils.save_pickle(ball_tracks_filled, ball_interp_path)
-        # if False:
+        if False:
         # debug video with tracks and teams
-        if True:
+        # if True:
             debug_output_path = os.path.join(
                 config.output_dir,
                 "debugs",
@@ -187,7 +187,6 @@ try:
                 ball_tracks=ball_tracks_filled
             )
 
-        sys.exit(1)
         logging.info(f"Step 6 Interpolation done in {time.time() - start_time:.1f}s")
 
 
