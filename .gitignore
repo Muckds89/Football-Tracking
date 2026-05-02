@@ -26,6 +26,7 @@ datasets/labels
 
 # Labels
 *.txt
+!requirements.txt
 
 # Training outputs
 runs/
